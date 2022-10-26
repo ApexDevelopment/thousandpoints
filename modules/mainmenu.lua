@@ -18,11 +18,11 @@ function update(dt, game)
 	if love.mouse.isDown(1) and game.util.point_in_rect(mouse_x, mouse_y, screen_w / 2 - 50, screen_h / 2 + 40, 100, 30) then
 		if not is_mouse_down then
 			is_mouse_down = true
-			print("Mouse down!")
 		end
 	elseif is_mouse_down then
 		is_mouse_down = false
-		print("Game should start now!")
+		print("Starting game!")
+		game:switch_module("testmodule")
 	end
 end
 

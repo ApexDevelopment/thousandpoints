@@ -6,5 +6,6 @@ function load_module(name)
 end
 
 load_module("mainmenu")
+load_module("testmodule")
 
 return modules
