@@ -4,7 +4,7 @@ local util = require("util")
 local game = {
 	util = util,
 	points = 0,
-	current_module = modules.mainmenu,
+	current_module = nil,
 	switch_module = function(self, new_module)
 		if self.current_module and self.current_module.stop then
 			self.current_module.stop()
@@ -23,7 +23,14 @@ local game = {
 }
 
 function love.load()
-	print("Hello World!")
+	print("Thousand points launched.")
+
+	print("Loading font...")
+	love.graphics.setNewFont("resources/fonts/upheavtt.ttf", 24)
+	print("Font loaded.")
+
+	print("Starting main menu...")
+	game:show_main_menu()
 end
 
 function love.update(dt)
@@ -34,6 +41,6 @@ end
 
 function love.draw()
 	if game.current_module then
-		game.current_module.draw()
+		game.current_module.draw(game)
 	end
 end
