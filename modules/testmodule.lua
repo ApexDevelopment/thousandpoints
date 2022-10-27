@@ -7,13 +7,16 @@ function stop()
 end
 
 function update(dt, game)
-	if love.keyboard.isDown("b") then
+end
+
+function draw(game)
+	love.graphics.print("This is a test module. Press 'b' to go back to the main menu.", 10, 50)
+end
+
+function keypressed(key, game)
+	if key == "b" then
 		game:switch_module("mainmenu")
 	end
 end
 
-function draw(game)
-	love.graphics.print("This is a test module. Press 'b' to go back to the main menu.", 50, 50)
-end
-
-return { start = start, stop = stop, update = update, draw = draw }
+return { start = start, stop = stop, update = update, draw = draw, keypressed = keypressed }
