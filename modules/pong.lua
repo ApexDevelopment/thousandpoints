@@ -79,6 +79,7 @@ local function update_paddles()
 	local field_h = FIELD_HEIGHT * PIXEL_SIZE
 	local field_x = (screen_w - field_w) / 2
 	local field_y = (screen_h - field_h) / 2
+
 	if mouse_x >= field_x and mouse_x < field_x + field_w and mouse_y >= field_y and mouse_y < field_y + field_h then
 		paddle_position = math.floor((mouse_y - field_y) / PIXEL_SIZE)
 	end
@@ -101,7 +102,8 @@ end
 
 local function update(dt)
 	time_since_last_tick = time_since_last_tick + dt
-	if time_since_last_tick > 1 / TICKS_PER_SECOND then
+
+	if time_since_last_tick >= 1 / TICKS_PER_SECOND then
 		update_ball()
 		time_since_last_tick = 0
 	end
@@ -129,7 +131,7 @@ local function draw()
 	-- Draw scores
 	local score_text = score.player .. " - " .. score.bot
 	local score_text_width = love.graphics.getFont():getWidth(score_text)
-	local score_text_height = love.graphics.getFont():getHeight(score_text)
+	local score_text_height = love.graphics.getFont():getHeight()
 	love.graphics.print(score_text, love.graphics.getWidth() / 2 - score_text_width / 2, love.graphics.getHeight() / 2 - FIELD_HEIGHT * PIXEL_SIZE / 2 - score_text_height - 10)
 end
 
@@ -139,8 +141,9 @@ local function keypressed(key, game)
 	end
 end
 
-local function start()
+local function start(game)
 	reset_ball()
+	PIXEL_SIZE = game.settings.PIXEL_SIZE
 end
 
 return { update = update, draw = draw, start = start, keypressed = keypressed }
