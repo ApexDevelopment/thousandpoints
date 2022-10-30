@@ -193,9 +193,9 @@ local function color_for_location(x, y)
 	local g = y / 5
 	local b = (x + y) / (FIELD_WIDTH + 5)
 	-- Clamp color so that it's not too dark
-	r = math.max(r, 0.5)
-	g = math.max(g, 0.5)
-	b = math.max(b, 0.5)
+	r = math.max(r, 0.3)
+	g = math.max(g, 0.3)
+	b = math.max(b, 0.3)
 	return { r, g, b }
 end
 
@@ -249,7 +249,7 @@ local function draw(game)
 	love.graphics.rectangle("line", 0, 0, FIELD_WIDTH * PIXEL_SIZE, FIELD_HEIGHT * PIXEL_SIZE)
 
 	love.graphics.scale(PIXEL_SIZE, PIXEL_SIZE)
-	
+
 	-- Draw bricks
 	for i = 1, #bricks do
 		local brick = bricks[i]
@@ -265,7 +265,8 @@ local function draw(game)
 	love.graphics.rectangle("fill", paddle_position, FIELD_HEIGHT - 2, paddle_width, 1)
 
 	love.graphics.pop()
-	love.graphics.print("Score: " .. score, 10, 10)
+	local score_text = "Score: " .. score
+	love.graphics.print(score_text, love.graphics.getWidth() / 2 - love.graphics.getFont():getWidth(score_text) / 2, 10);
 end
 
 return { update = update, draw = draw, start = start, settings_update = settings_update }
