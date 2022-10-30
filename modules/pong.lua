@@ -20,7 +20,7 @@ local function reset_ball()
 	if ball_velocity.x == 0 then
 		ball_velocity.x = 1
 	end
-	
+
 	if ball_velocity.y == 0 then
 		ball_velocity.y = 1
 	end
@@ -29,7 +29,7 @@ end
 local function update_ball()
 	-- Check for any collisions that may occur between where the ball is now and where it will be next tick.
 	local ball_next_position = {x = ball_position.x + ball_velocity.x, y = ball_position.y + ball_velocity.y}
-	
+
 	-- Check for collisions with the top and bottom of the field.
 	if ball_next_position.y < 0 then
 		ball_next_position.y = 0
@@ -127,7 +127,7 @@ local function draw()
 	love.graphics.rectangle("fill", FIELD_WIDTH - 2, bot_paddle_position, 1, paddle_height)
 	love.graphics.rectangle("fill", ball_position.x, ball_position.y, 1, 1)
 	love.graphics.pop()
-	
+
 	-- Draw scores
 	local score_text = score.player .. " - " .. score.bot
 	local score_text_width = love.graphics.getFont():getWidth(score_text)
@@ -146,4 +146,8 @@ local function start(game)
 	PIXEL_SIZE = game.settings.PIXEL_SIZE
 end
 
-return { update = update, draw = draw, start = start, keypressed = keypressed }
+local function settings_update(settings)
+	PIXEL_SIZE = settings.PIXEL_SIZE
+end
+
+return { update = update, draw = draw, start = start, settings_update = settings_update, keypressed = keypressed }
