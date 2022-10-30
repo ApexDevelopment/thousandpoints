@@ -256,7 +256,7 @@ local function draw(game)
 		love.graphics.setColor(brick.color)
 		love.graphics.rectangle("fill", brick.x + SHRINK_BRICKS, brick.y + SHRINK_BRICKS, brick.width - 2 * SHRINK_BRICKS, brick.height - 2 * SHRINK_BRICKS)
 	end
-	love.graphics.setColor(255, 255, 255)
+	love.graphics.setColor(1, 1, 1)
 
 	-- Draw ball
 	love.graphics.rectangle("fill", ball_position.x, ball_position.y, 1, 1)

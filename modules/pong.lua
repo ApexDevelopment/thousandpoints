@@ -122,7 +122,7 @@ local function draw()
 	end
 	-- Draw play field
 	love.graphics.scale(PIXEL_SIZE, PIXEL_SIZE)
-	love.graphics.setColor(255, 255, 255)
+	love.graphics.setColor(1, 1, 1)
 	love.graphics.rectangle("fill", 1, paddle_position, 1, paddle_height)
 	love.graphics.rectangle("fill", FIELD_WIDTH - 2, bot_paddle_position, 1, paddle_height)
 	love.graphics.rectangle("fill", ball_position.x, ball_position.y, 1, 1)
