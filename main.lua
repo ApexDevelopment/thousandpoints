@@ -2,6 +2,9 @@ local modules = require("modules.modules")
 local util = require("util")
 
 local game = {
+	settings = {
+		PIXEL_SIZE = 10
+	},
 	util = util,
 	points = 0,
 	current_module = nil,
@@ -9,13 +12,13 @@ local game = {
 		if type(new_module) == "string" then new_module = modules[new_module] end
 		
 		if self.current_module and self.current_module.stop then
-			self.current_module.stop()
+			self.current_module.stop(self)
 		end
 
 		self.current_module = new_module
 		
 		if new_module and new_module.start then
-			new_module.start()
+			new_module.start(self)
 		end
 	end,
 	show_main_menu = function(self)
@@ -77,6 +80,22 @@ function love.draw()
 end
 
 function love.keypressed(key)
+	-- If they press escape, intercept it and show the settings menu.
+	if key == "escape" then
+		--game:switch_module(modules.settings)
+		-- For now we'll just change the pixel size
+		game.settings.PIXEL_SIZE = game.settings.PIXEL_SIZE + 1
+
+		if game.settings.PIXEL_SIZE > 12 then
+			game.settings.PIXEL_SIZE = 1
+		end
+		-- If the current module has a settings update function, call it
+		if game.current_module and game.current_module.settings_update then
+			game.current_module.settings_update(game.settings)
+		end
+		return
+	end
+
 	if game.current_module and game.current_module.keypressed then
 		game.current_module.keypressed(key, game)
 	end
