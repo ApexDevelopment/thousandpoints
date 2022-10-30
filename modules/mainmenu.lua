@@ -3,7 +3,7 @@ local main_menu_text = love.graphics.newText(font, "thousand points")
 local play_button_text = love.graphics.newText(font, "play")
 local is_mouse_down = false
 
-function start()
+local function start()
 	font = love.graphics.getFont()
 	main_menu_text:setFont(font)
 	play_button_text:setFont(font)
@@ -11,7 +11,7 @@ function start()
 	print("Main menu started.")
 end
 
-function update(dt, game)
+local function update(dt, game)
 	local mouse_x, mouse_y = love.mouse.getPosition()
 	local screen_w, screen_h = love.graphics.getDimensions()
 
@@ -26,7 +26,7 @@ function update(dt, game)
 	end
 end
 
-function draw(game)
+local function draw(game)
 	local util = game.util
 	local screen_w, screen_h = love.graphics.getDimensions()
 
@@ -47,7 +47,7 @@ function draw(game)
 		100,
 		30
 	)
-	
+
 	love.graphics.draw(
 		play_button_text,
 		util.center_h(play_button_text, screen_w),
