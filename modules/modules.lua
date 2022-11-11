@@ -8,5 +8,6 @@ end
 load_module("mainmenu")
 load_module("testmodule")
 load_module("pong")
+load_module("spaceinvaders")
 
 return modules
