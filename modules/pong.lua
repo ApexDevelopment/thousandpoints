@@ -20,7 +20,7 @@ local function reset_ball()
 	if ball_velocity.x == 0 then
 		ball_velocity.x = 1
 	end
-	
+
 	if ball_velocity.y == 0 then
 		ball_velocity.y = 1
 	end
@@ -29,7 +29,7 @@ end
 local function update_ball()
 	-- Check for any collisions that may occur between where the ball is now and where it will be next tick.
 	local ball_next_position = {x = ball_position.x + ball_velocity.x, y = ball_position.y + ball_velocity.y}
-	
+
 	-- Check for collisions with the top and bottom of the field.
 	if ball_next_position.y < 0 then
 		ball_next_position.y = 0
@@ -79,6 +79,7 @@ local function update_paddles()
 	local field_h = FIELD_HEIGHT * PIXEL_SIZE
 	local field_x = (screen_w - field_w) / 2
 	local field_y = (screen_h - field_h) / 2
+
 	if mouse_x >= field_x and mouse_x < field_x + field_w and mouse_y >= field_y and mouse_y < field_y + field_h then
 		paddle_position = math.floor((mouse_y - field_y) / PIXEL_SIZE)
 	end
@@ -101,7 +102,8 @@ end
 
 local function update(dt)
 	time_since_last_tick = time_since_last_tick + dt
-	if time_since_last_tick > 1 / TICKS_PER_SECOND then
+
+	if time_since_last_tick >= 1 / TICKS_PER_SECOND then
 		update_ball()
 		time_since_last_tick = 0
 	end
@@ -120,16 +122,16 @@ local function draw()
 	end
 	-- Draw play field
 	love.graphics.scale(PIXEL_SIZE, PIXEL_SIZE)
-	love.graphics.setColor(255, 255, 255)
+	love.graphics.setColor(1, 1, 1)
 	love.graphics.rectangle("fill", 1, paddle_position, 1, paddle_height)
 	love.graphics.rectangle("fill", FIELD_WIDTH - 2, bot_paddle_position, 1, paddle_height)
 	love.graphics.rectangle("fill", ball_position.x, ball_position.y, 1, 1)
 	love.graphics.pop()
-	
+
 	-- Draw scores
 	local score_text = score.player .. " - " .. score.bot
 	local score_text_width = love.graphics.getFont():getWidth(score_text)
-	local score_text_height = love.graphics.getFont():getHeight(score_text)
+	local score_text_height = love.graphics.getFont():getHeight()
 	love.graphics.print(score_text, love.graphics.getWidth() / 2 - score_text_width / 2, love.graphics.getHeight() / 2 - FIELD_HEIGHT * PIXEL_SIZE / 2 - score_text_height - 10)
 end
 
@@ -139,8 +141,13 @@ local function keypressed(key, game)
 	end
 end
 
-local function start()
+local function start(game)
 	reset_ball()
+	PIXEL_SIZE = game.settings.PIXEL_SIZE
 end
 
-return { update = update, draw = draw, start = start, keypressed = keypressed }
+local function settings_update(settings)
+	PIXEL_SIZE = settings.PIXEL_SIZE
+end
+
+return { update = update, draw = draw, start = start, settings_update = settings_update, keypressed = keypressed }

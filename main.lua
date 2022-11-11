@@ -1,21 +1,26 @@
+local moonshine = require("moonshine")
 local modules = require("modules.modules")
 local util = require("util")
 
 local game = {
+	settings = {
+		PIXEL_SIZE = 10
+	},
 	util = util,
 	points = 0,
 	current_module = nil,
+	overlay_module = nil,
 	switch_module = function(self, new_module)
 		if type(new_module) == "string" then new_module = modules[new_module] end
-		
+
 		if self.current_module and self.current_module.stop then
-			self.current_module.stop()
+			self.current_module.stop(self)
 		end
 
 		self.current_module = new_module
-		
+
 		if new_module and new_module.start then
-			new_module.start()
+			new_module.start(self)
 		end
 	end,
 	show_main_menu = function(self)
@@ -60,53 +65,88 @@ function love.load()
 	love.graphics.setNewFont("resources/fonts/upheavtt.ttf", 24)
 	print("Font loaded.")
 
+	print("Loading shaders...")
+	game.shaders = {
+		blur = moonshine(moonshine.effects.gaussianblur)
+	}
+	print("Shaders loaded.")
+
 	print("Starting main menu...")
 	game:show_main_menu()
 end
 
 function love.update(dt)
-	if game.current_module then
+	if game.overlay_module then
+		game.overlay_module.update(dt, game)
+	elseif game.current_module then
 		game.current_module.update(dt, game)
 	end
 end
 
 function love.draw()
 	if game.current_module then
-		game.current_module.draw(game)
+		if game.overlay_module then
+			game.shaders.blur(function() game.current_module.draw(game) end)
+		else
+			game.current_module.draw(game)
+		end
+	end
+
+	if game.overlay_module then
+		-- Dim screen
+		love.graphics.setColor(0, 0, 0, 0.8)
+		love.graphics.rectangle("fill", 0, 0, love.graphics.getDimensions())
+		love.graphics.setColor(1, 1, 1, 1)
+		-- Draw overlay
+		game.overlay_module.draw(game)
 	end
 end
 
 function love.keypressed(key)
-	if game.current_module and game.current_module.keypressed then
+	-- If they press escape, intercept it and show the settings menu.
+	if key == "escape" then
+		if game.overlay_module then
+			game.overlay_module = nil
+		else
+			game.overlay_module = modules.settings
+		end
+		return
+	end
+
+	if not game.overlay_module and game.current_module and game.current_module.keypressed then
 		game.current_module.keypressed(key, game)
 	end
 end
 
 function love.keyreleased(key)
-	if game.current_module and game.current_module.keyreleased then
+	if not game.overlay_module and game.current_module and game.current_module.keyreleased then
 		game.current_module.keyreleased(key, game)
 	end
 end
 
 function love.mousepressed(x, y, button)
-	if game.current_module and game.current_module.mousepressed then
+	if not game.overlay_module and game.current_module and game.current_module.mousepressed then
 		game.current_module.mousepressed(x, y, button, game)
 	end
 end
 
 function love.mousereleased(x, y, button)
-	if game.current_module and game.current_module.mousereleased then
+	if not game.overlay_module and game.current_module and game.current_module.mousereleased then
 		game.current_module.mousereleased(x, y, button, game)
 	end
 end
 
 function love.mousemoved(x, y, dx, dy)
-	if game.current_module and game.current_module.mousemoved then
+	if not game.overlay_module and game.current_module and game.current_module.mousemoved then
 		game.current_module.mousemoved(x, y, dx, dy, game)
 	end
 end
 
 function love.quit()
+	if game.overlay_module and game.overlay_module.quit then
+		game.overlay_module.quit(game)
+	end
+
 	if game.current_module and game.current_module.stop then
 		game.current_module.stop()
 	end
