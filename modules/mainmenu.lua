@@ -22,7 +22,7 @@ local function update(dt, game)
 	elseif is_mouse_down then
 		is_mouse_down = false
 		print("Starting game!")
-		game:switch_module("breakout")
+		game:switch_module("spaceinvaders")
 	end
 end
 
