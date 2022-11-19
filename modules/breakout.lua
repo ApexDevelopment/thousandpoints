@@ -222,13 +222,11 @@ local function generate_bricks()
 end
 
 local function start(game)
-	PIXEL_SIZE = game.settings.PIXEL_SIZE
 	generate_bricks()
 	reset_ball()
 end
 
 local function settings_update(settings)
-	PIXEL_SIZE = settings.PIXEL_SIZE
 end
 
 local function update(dt, game)
@@ -243,6 +241,8 @@ local function update(dt, game)
 end
 
 local function draw(game)
+	PIXEL_SIZE = game.settings.PIXEL_SIZE
+
 	love.graphics.push()
 	love.graphics.translate(love.graphics.getWidth() / 2 - FIELD_WIDTH * PIXEL_SIZE / 2, love.graphics.getHeight() / 2 - FIELD_HEIGHT * PIXEL_SIZE / 2)
 	-- Draw border around play field

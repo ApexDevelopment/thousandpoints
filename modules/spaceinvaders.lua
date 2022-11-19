@@ -1,6 +1,5 @@
 local FIELD_WIDTH = 60
 local FIELD_HEIGHT = 40
-local PIXEL_SIZE = 10
 local TICKS_PER_SECOND = 20
 local NUM_ALIENS_IN_ROW = (FIELD_WIDTH - 2)
 local NUM_ALIEN_ROWS = 4
@@ -126,7 +125,8 @@ local function update(dt)
 	fire_bullet()
 end
 
-local function draw()
+local function draw(game)
+	local PIXEL_SIZE = game.settings.PIXEL_SIZE
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.rectangle("line", 0, 0, FIELD_WIDTH * PIXEL_SIZE, FIELD_HEIGHT * PIXEL_SIZE)
 

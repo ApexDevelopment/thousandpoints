@@ -111,7 +111,9 @@ local function update(dt)
 	update_paddles()
 end
 
-local function draw()
+local function draw(game)
+	PIXEL_SIZE = game.settings.PIXEL_SIZE
+
 	love.graphics.push()
 	love.graphics.translate(love.graphics.getWidth() / 2 - FIELD_WIDTH * PIXEL_SIZE / 2, love.graphics.getHeight() / 2 - FIELD_HEIGHT * PIXEL_SIZE / 2)
 	-- Draw border around play field
@@ -143,11 +145,9 @@ end
 
 local function start(game)
 	reset_ball()
-	PIXEL_SIZE = game.settings.PIXEL_SIZE
 end
 
 local function settings_update(settings)
-	PIXEL_SIZE = settings.PIXEL_SIZE
 end
 
 return { update = update, draw = draw, start = start, settings_update = settings_update, keypressed = keypressed }
