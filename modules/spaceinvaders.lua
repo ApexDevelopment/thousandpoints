@@ -16,6 +16,8 @@ local alien_tick_threshold = TICKS_PER_SECOND * 5
 
 local bullet_positions = {}
 local bullet_velocity = 1
+local bullet_cooldown = 0
+local bullet_update_tick = 0
 
 local score = 0
 
@@ -64,7 +66,7 @@ local function update_alien_positions()
 	end]]
 end
 
-local function update_bullet()
+local function update_bullets()
 	if #bullet_positions == 0 then
 		return
 	end
@@ -88,7 +90,7 @@ local function check_bullet_collision()
 			if bullet_positions[i].x == alien_positions[j].x and bullet_positions[i].y == alien_positions[j].y then
 				table.remove(bullet_positions, i)
 				table.remove(alien_positions, j)
-				score = score + 100
+				score = score + 50
 				return
 			end
 		end
@@ -114,8 +116,9 @@ local function update_player_position()
 end
 
 local function fire_bullet()
-	if #bullet_positions < 2 and love.keyboard.isDown("space") then
+	if #bullet_positions < 2 and bullet_cooldown == 0 and love.keyboard.isDown("space") then
 		table.insert(bullet_positions, {x = ship_position, y = FIELD_HEIGHT - 2})
+		bullet_cooldown = 25
 	end
 end
 
@@ -127,12 +130,18 @@ local function update(dt)
 	time_since_last_tick = time_since_last_tick + dt
 	if time_since_last_tick > 1 / TICKS_PER_SECOND then
 		update_alien_positions()
-		update_bullet()
-		check_bullet_collision()
-	end
 
-	update_player_position()
-	fire_bullet()
+		bullet_update_tick = bullet_update_tick + 1
+		if bullet_update_tick > 4 then
+			bullet_update_tick = 0
+			update_bullets()
+		end
+
+		bullet_cooldown = math.max(0, bullet_cooldown - 1)
+		check_bullet_collision()
+		update_player_position()
+		fire_bullet()
+	end
 end
 
 local function draw(game)
@@ -175,9 +184,9 @@ local function draw(game)
 		for i = 1, #bullet_positions do
 			love.graphics.rectangle(
 				"fill",
-				bullet_positions[i].x + 0.2,
+				bullet_positions[i].x + 0.3,
 				bullet_positions[i].y,
-				0.6,
+				0.3,
 				1
 			)
 		end
