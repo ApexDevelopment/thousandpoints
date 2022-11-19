@@ -55,5 +55,6 @@ end
 
 return {
 	update = update,
-	draw = draw
+	draw = draw,
+	menu = true
 }

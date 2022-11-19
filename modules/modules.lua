@@ -5,9 +5,11 @@ local function load_module(name)
 	modules[name] = module
 end
 
+-- Menu modules
+--load_module("testmodule")
 load_module("mainmenu")
 load_module("settings")
-load_module("testmodule")
+-- Game modules
 load_module("pong")
 load_module("spaceinvaders")
 load_module("breakout")

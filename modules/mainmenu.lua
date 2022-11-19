@@ -21,8 +21,7 @@ local function update(dt, game)
 		end
 	elseif is_mouse_down then
 		is_mouse_down = false
-		print("Starting game!")
-		game:switch_module("spaceinvaders")
+		game:start_game()
 	end
 end
 
@@ -57,4 +56,9 @@ local function draw(game)
 	love.graphics.setColor(1, 1, 1)
 end
 
-return { start = start, update = update, draw = draw }
+return {
+	start = start,
+	update = update,
+	draw = draw,
+	menu = true
+}

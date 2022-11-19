@@ -6,6 +6,8 @@ local game = {
 	settings = {
 		PIXEL_SIZE = 10
 	},
+	games = {},
+	current_game_id = 1,
 	util = util,
 	points = 0,
 	current_module = nil,
@@ -26,6 +28,26 @@ local game = {
 	show_main_menu = function(self)
 		self.points = 0
 		self:switch_module(modules.mainmenu)
+	end,
+	start_game = function(self)
+		-- Randomize the order of the games played
+		for k, v in pairs(modules) do
+			if not v.menu then
+				table.insert(self.games, k)
+			end
+		end
+
+		self.util.shuffle(self.games)
+		print("Starting game!")
+		self:switch_module(self.games[self.current_game_id])
+	end,
+	next_game = function(self)
+		self.current_game_id = self.current_game_id + 1
+		if self.current_game_id > #self.games then
+			self.current_game_id = 1
+		end
+
+		self:switch_module(self.games[self.current_game_id])
 	end
 }
 --[[
