@@ -29,9 +29,20 @@ local function shuffle(array)
 	end
 end
 
+local function shallow_copy_table(t)
+	local copy = {}
+
+	for k, v in pairs(t) do
+		copy[k] = v
+	end
+
+	return copy
+end
+
 return {
 	point_in_rect = point_in_rect,
 	center_h = center_h,
 	center_v = center_v,
-	shuffle = shuffle
+	shuffle = shuffle,
+	shallow_copy_table = shallow_copy_table
 }

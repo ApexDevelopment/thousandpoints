@@ -74,7 +74,7 @@ local function check_brick_collision(prev_x, prev_y, x, y)
 			elseif prev_y >= brick.y + brick.height then
 				y_collision_bottom = true
 			end
-			
+
 			if x_collision_left and y_collision_top then
 				return true, -1, -1, -1, -1
 			elseif x_collision_left and y_collision_bottom then
@@ -176,7 +176,7 @@ local function update_paddle()
 	local field_h = FIELD_HEIGHT * PIXEL_SIZE
 	local field_x = (screen_w - field_w) / 2
 	local field_y = (screen_h - field_h) / 2
-	
+
 	if mouse_x >= field_x and mouse_x < field_x + field_w and mouse_y >= field_y and mouse_y < field_y + field_h then
 		paddle_position = math.floor((mouse_x - field_x) / PIXEL_SIZE)
 	end
