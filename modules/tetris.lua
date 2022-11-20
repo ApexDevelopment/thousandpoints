@@ -51,12 +51,15 @@ local PIECE_NAMES = {"I", "O", "T", "S", "Z", "J", "L"}
 local cur_time_s = 0
 local last_grav_s = 0 -- Last time gravity was applied to the piece
 local last_input_s = 0 -- Last time the player pressed a key
+local last_rotation_s = 0 -- Last time the player rotated the piece
 local grav_speed = 0.3 -- Gravity speed in seconds
-local input_speed = 0.1 -- Input poll delay in seconds
+local input_speed = 0.06 -- Input poll delay in seconds
+local rotation_speed = 0.2 -- Rotation delay in seconds
 local key_held = false
 local score = 0
 local game_over = false
 local soft_drop = false
+local hard_drop = false
 local piece_landed = false
 local rotation = 1
 local piece_grid = {}
@@ -64,7 +67,6 @@ local piece = nil
 local piece_queue = {}
 local piece_position = {x = 1, y = 1}
 local num_combo = 0
-
 
 local function permute_pieces(game)
 	local pieces = game.util.shallow_copy_table(PIECE_NAMES)
@@ -212,6 +214,10 @@ local function advance_piece_or_collide()
 	else
 		-- Advance
 		piece_position.y = piece_position.y + 1
+
+		if soft_drop or hard_drop then
+			score = score + 1
+		end
 	end
 end
 
@@ -294,8 +300,24 @@ local function handle_input()
 	end
 
 	if love.keyboard.isDown("up") then
-		try_rotation()
+		if cur_time_s - last_rotation_s > rotation_speed then
+			try_rotation()
+			last_rotation_s = cur_time_s
+		end
+
 		new_key_held = true
+	end
+
+	if love.keyboard.isDown("space") then
+		-- Don't allow hard drop if we hard dropped the last piece
+		if not hard_drop then
+			hard_drop = true
+			while not piece_landed do
+				advance_piece_or_collide()
+			end
+		end
+	else
+		hard_drop = false
 	end
 
 	key_held = new_key_held
