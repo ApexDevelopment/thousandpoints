@@ -21,7 +21,8 @@ local function update(dt, game)
 		end
 	elseif is_mouse_down then
 		is_mouse_down = false
-		game:start_game()
+		--game:start_game()
+		game:switch_module("tetris")
 	end
 end
 
