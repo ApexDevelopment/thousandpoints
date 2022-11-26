@@ -56,7 +56,7 @@ local function check_brick_collision(prev_x, prev_y, x, y)
 	for i, brick in ipairs(bricks) do
 		if x >= brick.x and x < brick.x + brick.width and y >= brick.y and y < brick.y + brick.height then
 			table.remove(bricks, i)
-			score = score + 1
+			score = score + 50
 
 			local x_collision_left = false
 			local x_collision_right = false
@@ -221,7 +221,7 @@ local function generate_bricks()
 	end
 end
 
-local function start(game)
+local function start()
 	generate_bricks()
 	reset_ball()
 end
@@ -238,6 +238,10 @@ local function update(dt, game)
 	end
 
 	update_paddle()
+
+	if score >= 1000 then
+		game:next_game()
+	end
 end
 
 local function draw(game)

@@ -126,7 +126,7 @@ local function start()
 	reset_alien_positions()
 end
 
-local function update(dt)
+local function update(dt, game)
 	time_since_last_tick = time_since_last_tick + dt
 	if time_since_last_tick > 1 / TICKS_PER_SECOND then
 		update_alien_positions()
@@ -141,6 +141,10 @@ local function update(dt)
 		check_bullet_collision()
 		update_player_position()
 		fire_bullet()
+	end
+
+	if score >= 1000 then
+		game:next_game()
 	end
 end
 

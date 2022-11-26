@@ -6,6 +6,7 @@ local TICKS_PER_SECOND = 20
 local ball_position = {x = 0, y = 0}
 local ball_velocity = {x = 0, y = 0}
 local paddle_position = 0
+local d_paddle_position = 0
 local bot_paddle_position = 0
 local paddle_height = 5
 local score = {player = 0, bot = 0}
@@ -14,12 +15,8 @@ local time_since_last_tick = 0
 local function reset_ball()
 	ball_position.x = math.floor(FIELD_WIDTH / 2)
 	ball_position.y = math.floor(FIELD_HEIGHT / 2)
-	ball_velocity.x = math.random(-2, 2)
-	ball_velocity.y = math.random(-2, 2)
-
-	if ball_velocity.x == 0 then
-		ball_velocity.x = 1
-	end
+	ball_velocity.x = -1
+	ball_velocity.y = math.random(-1, 1)
 
 	if ball_velocity.y == 0 then
 		ball_velocity.y = 1
@@ -44,8 +41,24 @@ local function update_ball()
 		if ball_next_position.y >= paddle_position and ball_next_position.y < paddle_position + paddle_height then
 			ball_next_position.x = 2
 			ball_velocity.x = -ball_velocity.x
+
+			-- If the ball hits the paddle at the top or bottom, it should bounce at a 45 degree angle.
+			if ball_next_position.y == paddle_position then
+				ball_velocity.y = -1
+			elseif ball_next_position.y == paddle_position + paddle_height - 1 then
+				ball_velocity.y = 1
+			end
+
+			-- If the player smashes the ball, it should go faster.
+			if d_paddle_position * ball_velocity.y < 0 then
+				-- The ball is moving in the opposite direction as the paddle, so we change x velocity
+				ball_velocity.x = math.min(3, math.max(1, math.floor(4 * (1 - 1 / (d_paddle_position + 1)))))
+			else
+				-- The ball is moving in the same direction as the paddle, so we change y velocity
+				ball_velocity.y = (ball_velocity.y / math.abs(ball_velocity.y)) * math.min(3, math.max(1, math.floor(4 * (1 - 1 / (d_paddle_position + 1)))))
+			end
 		else
-			score.bot = score.bot + 1
+			score.bot = score.bot + 100
 			reset_ball()
 			return
 		end
@@ -53,8 +66,15 @@ local function update_ball()
 		if ball_next_position.y >= bot_paddle_position and ball_next_position.y < bot_paddle_position + paddle_height then
 			ball_next_position.x = FIELD_WIDTH - 3
 			ball_velocity.x = -ball_velocity.x
+
+			-- If the ball hits the paddle at the top or bottom, it should bounce at a 45 degree angle.
+			if ball_next_position.y == bot_paddle_position then
+				ball_velocity.y = -1
+			elseif ball_next_position.y == bot_paddle_position + paddle_height - 1 then
+				ball_velocity.y = 1
+			end
 		else
-			score.player = score.player + 1
+			score.player = score.player + 100
 			reset_ball()
 			return
 		end
@@ -64,7 +84,9 @@ local function update_ball()
 	ball_position.y = ball_next_position.y
 end
 
-local function update_paddles()
+local function update_player_paddle()
+	local old_paddle_position = paddle_position
+
 	-- Update player paddle based on keyboard input
 	if love.keyboard.isDown("up") then
 		paddle_position = paddle_position - 1
@@ -90,8 +112,25 @@ local function update_paddles()
 		paddle_position = FIELD_HEIGHT - paddle_height
 	end
 
-	-- TODO: More advanced bot
-	bot_paddle_position = ball_position.y - paddle_height / 2
+	-- Add a virtual velocity and velocity falloff so we can determine how hard the player hits the ball
+	local dpp = paddle_position - old_paddle_position
+	if math.abs(dpp) > math.abs(d_paddle_position) then
+		d_paddle_position = dpp
+	else
+		d_paddle_position = d_paddle_position * 0.98
+	end
+end
+
+local function update_bot_paddle()
+	-- Have the bot follow the ball imperfectly
+	if ball_position.x > FIELD_WIDTH / 2 and math.random(100) < 99 then
+		if ball_position.y > bot_paddle_position + paddle_height - 2 then
+			bot_paddle_position = bot_paddle_position + 1
+		elseif ball_position.y < bot_paddle_position + 1 then
+			bot_paddle_position = bot_paddle_position - 1
+		end
+	end
+
 	-- Clamp bot to play field
 	if bot_paddle_position < 0 then
 		bot_paddle_position = 0
@@ -100,15 +139,20 @@ local function update_paddles()
 	end
 end
 
-local function update(dt)
+local function update(dt, game)
 	time_since_last_tick = time_since_last_tick + dt
 
 	if time_since_last_tick >= 1 / TICKS_PER_SECOND then
 		update_ball()
+		update_bot_paddle()
 		time_since_last_tick = 0
 	end
 
-	update_paddles()
+	update_player_paddle()
+
+	if score.player >= 1000 then
+		game:next_game()
+	end
 end
 
 local function draw(game)
@@ -134,7 +178,13 @@ local function draw(game)
 	local score_text = score.player .. " - " .. score.bot
 	local score_text_width = love.graphics.getFont():getWidth(score_text)
 	local score_text_height = love.graphics.getFont():getHeight()
+	local score_label_text = "Score"
+	love.graphics.print(
+		score_label_text,
+		love.graphics.getWidth() / 2 - love.graphics.getFont():getWidth(score_label_text) / 2,
+		love.graphics.getHeight() / 2 - FIELD_HEIGHT * PIXEL_SIZE / 2 - score_text_height  * 2 - 10);
 	love.graphics.print(score_text, love.graphics.getWidth() / 2 - score_text_width / 2, love.graphics.getHeight() / 2 - FIELD_HEIGHT * PIXEL_SIZE / 2 - score_text_height - 10)
+	--love.graphics.print(tostring(d_paddle_position), 0, 0)
 end
 
 local function keypressed(key, game)
@@ -147,7 +197,4 @@ local function start(game)
 	reset_ball()
 end
 
-local function settings_update(settings)
-end
-
-return { update = update, draw = draw, start = start, settings_update = settings_update, keypressed = keypressed }
+return { update = update, draw = draw, start = start, keypressed = keypressed }

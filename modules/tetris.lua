@@ -327,7 +327,8 @@ local function update(dt, game)
 	if not game_over then
 		cur_time_s = cur_time_s + dt
 
-		if score > 1000 then
+		if score >= 1000 then
+			game_over = true
 			game:next_game()
 			return
 		end
