@@ -3,6 +3,10 @@ local modules = {}
 local function load_module(name)
 	local module = require("modules." .. name)
 	modules[name] = module
+
+	if module.load then
+		module.load()
+	end
 end
 
 -- Menu modules
