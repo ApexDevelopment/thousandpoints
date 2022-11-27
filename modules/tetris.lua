@@ -221,6 +221,22 @@ local function advance_piece_or_collide()
 	end
 end
 
+local function find_lowest_possible_y_position()
+	local lowest_y = 0
+
+	for y = piece_position.y, FIELD_HEIGHT do
+		if does_next_position_overlap(rotation, 0, y - piece_position.y) then
+			if y - 1 > lowest_y then
+				lowest_y = y - 1
+			end
+
+			break
+		end
+	end
+
+	return lowest_y
+end
+
 local function check_rows()
 	local total = 0
 	local bonus = 0
@@ -390,6 +406,17 @@ local function draw(game)
 			local piece_y = PIECES_Y[piece][rotation][i] + piece_position.y
 
 			love.graphics.rectangle("fill", piece_x - 1, piece_y - 1, 1, 1)
+		end
+	end
+
+	-- Draw preview of where the current piece will land
+	if not piece_landed then
+		local lowest_y = find_lowest_possible_y_position()
+		for i = 1, 4 do
+			local piece_x = PIECES_X[piece][rotation][i] + piece_position.x
+			local piece_y = PIECES_Y[piece][rotation][i] + lowest_y
+			love.graphics.setLineWidth(0.1)
+			love.graphics.rectangle("line", piece_x - 1, piece_y - 1, 1, 1)
 		end
 	end
 
