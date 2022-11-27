@@ -48,7 +48,7 @@ local game = {
 			self.current_game_id = 1
 		end
 
-		print("Moving to next game!", self.current_game_id)
+		--print("Moving to next game!", self.current_game_id)
 		self:switch_module(self.games[self.current_game_id])
 	end
 }
