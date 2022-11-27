@@ -10,6 +10,7 @@ local time_since_last_tick = 0
 local ship_position = math.floor(FIELD_WIDTH / 2)
 
 local alien_positions = {}
+local alien_bullet_positions = {}
 local alien_direction = 1
 local alien_tick = 0
 local alien_tick_threshold = TICKS_PER_SECOND * 5
@@ -18,6 +19,10 @@ local bullet_positions = {}
 local bullet_velocity = 1
 local bullet_cooldown = 0
 local bullet_update_tick = 0
+
+local game_freeze_timer = 0
+local ship_blink_timer = 0
+local ship_blink_state = false
 
 local score = 0
 
@@ -28,6 +33,11 @@ local function reset_alien_positions()
 	-- for i = 1, NUM_ALIENS do
 	-- 	alien_positions[i] = {x = i % NUM_ALIENS_IN_ROW, y = math.floor(i / NUM_ALIENS_IN_ROW)}
 	-- end
+end
+
+local function clear_bullets()
+	alien_bullet_positions = {}
+	bullet_positions = {}
 end
 
 local function move_aliens_down()
@@ -67,30 +77,46 @@ local function update_alien_positions()
 end
 
 local function update_bullets()
-	if #bullet_positions == 0 then
-		return
+	if #bullet_positions ~= 0 then
+		for i = #bullet_positions, 1, -1 do
+			bullet_positions[i].y = bullet_positions[i].y - bullet_velocity
+
+			if bullet_positions[i].y < 0 then
+				table.remove(bullet_positions, i)
+			end
+		end
 	end
 
-	for i = #bullet_positions, 1, -1 do
-		bullet_positions[i].y = bullet_positions[i].y - bullet_velocity
+	if #alien_bullet_positions ~= 0 then
+		for i = #alien_bullet_positions, 1, -1 do
+			alien_bullet_positions[i].y = alien_bullet_positions[i].y + bullet_velocity
 
-		if bullet_positions[i].y < 0 then
-			table.remove(bullet_positions, i)
+			if alien_bullet_positions[i].y >= FIELD_HEIGHT then
+				table.remove(alien_bullet_positions, i)
+			end
 		end
 	end
 end
 
 local function check_bullet_collision()
-	if #bullet_positions == 0 then
-		return
+	if #bullet_positions ~= 0 then
+		for i = 1, #bullet_positions do
+			for j = 1, #alien_positions do
+				if bullet_positions[i].x == alien_positions[j].x and bullet_positions[i].y == alien_positions[j].y then
+					table.remove(bullet_positions, i)
+					table.remove(alien_positions, j)
+					score = score + 50
+					return
+				end
+			end
+		end
 	end
 
-	for i = 1, #bullet_positions do
-		for j = 1, #alien_positions do
-			if bullet_positions[i].x == alien_positions[j].x and bullet_positions[i].y == alien_positions[j].y then
-				table.remove(bullet_positions, i)
-				table.remove(alien_positions, j)
-				score = score + 50
+	if #alien_bullet_positions ~= 0 then
+		for i = 1, #alien_bullet_positions do
+			if alien_bullet_positions[i].x == ship_position and alien_bullet_positions[i].y == FIELD_HEIGHT - 1 then
+				score = score - 100 -- TODO: Just lose a life
+				game_freeze_timer = 3
 				return
 			end
 		end
@@ -120,6 +146,11 @@ local function fire_bullet()
 		table.insert(bullet_positions, {x = ship_position, y = FIELD_HEIGHT - 2})
 		bullet_cooldown = 25
 	end
+
+	if #alien_bullet_positions < 10 then
+		local alien = alien_positions[math.random(#alien_positions)]
+		table.insert(alien_bullet_positions, {x = alien.x, y = alien.y})
+	end
 end
 
 local function start()
@@ -127,6 +158,25 @@ local function start()
 end
 
 local function update(dt, game)
+	if game_freeze_timer > 0 then
+		game_freeze_timer = game_freeze_timer - dt
+
+		if ship_blink_timer > 0 then
+			ship_blink_timer = ship_blink_timer - dt
+		else
+			ship_blink_timer = 0.3
+			ship_blink_state = not ship_blink_state
+		end
+
+		if game_freeze_timer <= 0 then
+			clear_bullets()
+			ship_position = math.floor(FIELD_WIDTH / 2)
+			ship_blink_state = false
+		end
+
+		return
+	end
+
 	time_since_last_tick = time_since_last_tick + dt
 	if time_since_last_tick > 1 / TICKS_PER_SECOND then
 		update_alien_positions()
@@ -172,16 +222,18 @@ local function draw(game)
 	end
 
 	-- Draw ship
-	love.graphics.setColor(1, 0, 0)
-	love.graphics.rectangle(
-		"fill",
-		ship_position,
-		FIELD_HEIGHT - 1,
-		1,
-		1
-	)
+	if not ship_blink_state then
+		love.graphics.setColor(1, 1, 0)
+		love.graphics.rectangle(
+			"fill",
+			ship_position,
+			FIELD_HEIGHT - 1,
+			1,
+			1
+		)
+	end
 
-	-- Draw bullet
+	-- Draw bullets
 	if #bullet_positions ~= 0 then
 		love.graphics.setColor(0, 1, 0)
 
@@ -190,6 +242,21 @@ local function draw(game)
 				"fill",
 				bullet_positions[i].x + 0.3,
 				bullet_positions[i].y,
+				0.3,
+				1
+			)
+		end
+	end
+
+	-- Draw alien bullets
+	if #alien_bullet_positions ~= 0 then
+		love.graphics.setColor(1, 0, 0)
+
+		for i = 1, #alien_bullet_positions do
+			love.graphics.rectangle(
+				"fill",
+				alien_bullet_positions[i].x + 0.3,
+				alien_bullet_positions[i].y,
 				0.3,
 				1
 			)
