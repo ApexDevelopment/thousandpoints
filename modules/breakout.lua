@@ -38,12 +38,13 @@ local function check_wall_collision(x, y)
 	return false, 0, 0, 1, 1
 end
 
-local function check_paddle_collision(x, y)
+local function check_paddle_collision(x, y, game)
 	if y > FIELD_HEIGHT - 3 then
 		if x >= paddle_position and x < paddle_position + paddle_width then
 			return true, 0, -1, 1, -1
 		else
 			reset_ball()
+			game:lose_life()
 			return true, 0, 0, 0, 0
 		end
 	end
@@ -55,7 +56,7 @@ local function check_brick_collision(prev_x, prev_y, x, y, game)
 	for i, brick in ipairs(bricks) do
 		if x >= brick.x and x < brick.x + brick.width and y >= brick.y and y < brick.y + brick.height then
 			table.remove(bricks, i)
-			game.points = game.points + 50
+			game:add_score(50)
 
 			local x_collision_left = false
 			local x_collision_right = false
@@ -132,7 +133,7 @@ local function update_ball(game)
 			ball_velocity.y = ball_velocity.y * y_vel_mult
 		end
 
-		collided, x_move, y_move, x_vel_mult, y_vel_mult = check_paddle_collision(ball_next_position_x, ball_next_position_y)
+		collided, x_move, y_move, x_vel_mult, y_vel_mult = check_paddle_collision(ball_next_position_x, ball_next_position_y, game)
 		if collided then
 			if x_vel_mult ~= 0 then
 				ball_next_position_x = ball_next_position_x + x_move
@@ -244,7 +245,7 @@ end
 local function draw(game)
 	PIXEL_SIZE = game.settings.PIXEL_SIZE
 
-	love.graphics.push()
+	love.graphics.push("all")
 	love.graphics.translate(love.graphics.getWidth() / 2 - FIELD_WIDTH * PIXEL_SIZE / 2, love.graphics.getHeight() / 2 - FIELD_HEIGHT * PIXEL_SIZE / 2)
 	-- Draw border around play field
 	love.graphics.rectangle("line", 0, 0, FIELD_WIDTH * PIXEL_SIZE, FIELD_HEIGHT * PIXEL_SIZE)
@@ -267,7 +268,9 @@ local function draw(game)
 
 	love.graphics.pop()
 	local score_text = "Score: " .. game.points
-	love.graphics.print(score_text, love.graphics.getWidth() / 2 - love.graphics.getFont():getWidth(score_text) / 2, 10);
+	love.graphics.print(score_text, love.graphics.getWidth() / 2 - love.graphics.getFont():getWidth(score_text) / 2, 10)
+
+	return FIELD_WIDTH, FIELD_HEIGHT
 end
 
 return { update = update, draw = draw, start = start, settings_update = settings_update }

@@ -71,6 +71,19 @@ local game = {
 		end
 
 		self:switch_module(self.games[self.current_game_id])
+	end,
+	lose_life = function(self)
+		self.lives = self.lives - 1
+		if self.lives < 0 then
+			self.lives = 3
+			self:switch_module(modules.gameover)
+		end
+	end,
+	add_score = function(self, points)
+		self.points = self.points + points
+		if self.points > 1000 then
+			self:next_game()
+		end
 	end
 }
 
@@ -95,15 +108,7 @@ function love.update(dt)
 	if game.overlay_module then
 		game.overlay_module.update(dt, game)
 	elseif game.current_module then
-		if game.current_module.menu then
-			game.current_module.update(dt, game)
-		elseif game.lives == -1 then
-			game:switch_module(modules.gameover)
-		elseif game.points >= 1000 then
-			game:next_game()
-		else
-			game.current_module.update(dt, game)
-		end
+		game.current_module.update(dt, game)
 	end
 end
 
@@ -111,6 +116,14 @@ function love.draw()
 	if game.current_module then
 		if game.overlay_module then
 			game.shaders.blur(function() game.current_module.draw(game) end)
+		elseif not game.current_module.menu then
+			local game_w, game_h = game.current_module.draw(game)
+			local bottom_pos = game_h * game.settings.PIXEL_SIZE / 2 + love.graphics.getHeight() / 2
+			local left_pos  = love.graphics.getWidth() / 2 - game_w * game.settings.PIXEL_SIZE / 2
+
+			for i = 0, game.lives do
+				love.graphics.rectangle("fill", left_pos + 20 * i, bottom_pos + 10, 16, 16)
+			end
 		else
 			game.current_module.draw(game)
 		end
@@ -128,7 +141,7 @@ end
 
 function love.keypressed(key)
 	-- If they press escape, intercept it and show the settings menu.
-	if key == "escape" then
+	if key == "escape" and not game.current_module.menu then
 		if game.overlay_module then
 			game:clear_overlay()
 		else

@@ -107,7 +107,7 @@ local function check_bullet_collision(game)
 				if bullet_positions[i].x == alien_positions[j].x and bullet_positions[i].y == alien_positions[j].y then
 					table.remove(bullet_positions, i)
 					table.remove(alien_positions, j)
-					game.points = game.points + 50
+					game:add_score(50)
 					return
 				end
 			end
@@ -118,7 +118,7 @@ local function check_bullet_collision(game)
 		for i = 1, #alien_bullet_positions do
 			if alien_bullet_positions[i].x == ship_position and alien_bullet_positions[i].y == FIELD_HEIGHT - 1 then
 				alien_bullet_positions[i].y = alien_bullet_positions[i].y - 1 -- Just so the death anim looks better
-				game.lives = game.lives - 1
+				game:lose_life()
 				game_freeze_timer = 3
 				return
 			end
@@ -211,7 +211,7 @@ local function draw(game)
 	-- Draw aliens
 	love.graphics.setColor(1, 1, 1)
 	for i = 1, #alien_positions do
-		love.graphics.push()
+		love.graphics.push("all")
 		love.graphics.translate(alien_positions[i].x + 0.25, alien_positions[i].y + 0.25)
 		love.graphics.scale(1/4, 1/4)
 		for y = 1, 3 do
@@ -232,14 +232,6 @@ local function draw(game)
 
 	-- Draw ship
 	if not ship_blink_state then
-		-- love.graphics.setColor(1, 1, 0)
-		-- love.graphics.rectangle(
-		-- 	"fill",
-		-- 	ship_position,
-		-- 	FIELD_HEIGHT - 1,
-		-- 	1,
-		-- 	1
-		-- )
 		love.graphics.setColor(1, 1, 1)
 		for y = 1, 5 do
 			for x = 1, 5 do
@@ -289,6 +281,8 @@ local function draw(game)
 	love.graphics.pop()
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.print("Score: " .. game.points, 0, 0)
+
+	return FIELD_WIDTH, FIELD_HEIGHT
 end
 
 return { start = start, update = update, draw = draw }

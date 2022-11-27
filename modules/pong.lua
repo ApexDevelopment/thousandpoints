@@ -61,6 +61,7 @@ local function update_ball(game)
 			end
 		else
 			bot_score = bot_score + 100
+			game:lose_life()
 			reset_ball()
 			return
 		end
@@ -76,7 +77,7 @@ local function update_ball(game)
 				ball_velocity.y = 1
 			end
 		else
-			game.points = game.points + 100
+			game:add_score(100)
 			reset_ball()
 			return
 		end
@@ -161,7 +162,7 @@ end
 local function draw(game)
 	PIXEL_SIZE = game.settings.PIXEL_SIZE
 
-	love.graphics.push()
+	love.graphics.push("all")
 	love.graphics.translate(love.graphics.getWidth() / 2 - FIELD_WIDTH * PIXEL_SIZE / 2, love.graphics.getHeight() / 2 - FIELD_HEIGHT * PIXEL_SIZE / 2)
 	-- Draw border around play field
 	love.graphics.rectangle("line", 0, 0, FIELD_WIDTH * PIXEL_SIZE, FIELD_HEIGHT * PIXEL_SIZE)
@@ -185,9 +186,10 @@ local function draw(game)
 	love.graphics.print(
 		score_label_text,
 		love.graphics.getWidth() / 2 - love.graphics.getFont():getWidth(score_label_text) / 2,
-		love.graphics.getHeight() / 2 - FIELD_HEIGHT * PIXEL_SIZE / 2 - score_text_height  * 2 - 10);
+		love.graphics.getHeight() / 2 - FIELD_HEIGHT * PIXEL_SIZE / 2 - score_text_height  * 2 - 10)
 	love.graphics.print(score_text, love.graphics.getWidth() / 2 - score_text_width / 2, love.graphics.getHeight() / 2 - FIELD_HEIGHT * PIXEL_SIZE / 2 - score_text_height - 10)
-	--love.graphics.print(tostring(d_paddle_position), 0, 0)
+
+	return FIELD_WIDTH, FIELD_HEIGHT
 end
 
 local function keypressed(key, game)

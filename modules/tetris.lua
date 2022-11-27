@@ -34,7 +34,7 @@ local WALLKICKS_I = {
 	{{0, 0}, {-1, 0}, { 2, 0}, {-1, 2}, { 2, -1}},
 	{{0, 0}, { 2, 0}, {-1, 0}, { 2, 1}, {-1, -2}},
 	{{0, 0}, { 1, 0}, {-2, 0}, { 1,-2}, {-2,  1}}
-};
+}
 
 local PIECE_COLORS = {
 	I = {0, 255, 255},
@@ -215,7 +215,7 @@ local function advance_piece_or_collide(game)
 		piece_position.y = piece_position.y + 1
 
 		if soft_drop or hard_drop then
-			game.points = game.points + 1
+			game:add_score(1)
 		end
 	end
 end
@@ -280,7 +280,7 @@ local function check_rows(game)
 	end
 	]]
 
-	game.points = game.points + total
+	game:add_score(total)
 end
 
 local function handle_input(game)
@@ -373,7 +373,7 @@ local function draw(game)
 
 	PIXEL_SIZE = game.settings.PIXEL_SIZE
 
-	love.graphics.push()
+	love.graphics.push("all")
 	love.graphics.translate(love.graphics.getWidth() / 2 - FIELD_WIDTH * PIXEL_SIZE / 2, love.graphics.getHeight() / 2 - FIELD_HEIGHT * PIXEL_SIZE / 2)
 
 	-- Draw border around play field
@@ -415,7 +415,9 @@ local function draw(game)
 
 	love.graphics.pop()
 	local score_text = "Score: " .. game.points
-	love.graphics.print(score_text, love.graphics.getWidth() / 2 - love.graphics.getFont():getWidth(score_text) / 2, 10);
+	love.graphics.print(score_text, love.graphics.getWidth() / 2 - love.graphics.getFont():getWidth(score_text) / 2, 10)
+
+	return FIELD_WIDTH, FIELD_HEIGHT
 end
 
 local function start(game)
