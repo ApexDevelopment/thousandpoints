@@ -31,11 +31,27 @@ local game = {
 		self.points = 0
 		self:switch_module(modules.mainmenu)
 	end,
+	show_overlay = function(self, overlay)
+		if type(overlay) == "string" then overlay = modules[overlay] end
+
+		self.overlay_module = overlay
+
+		if overlay and overlay.start then
+			overlay.start(self)
+		end
+	end,
+	clear_overlay = function(self)
+		if self.overlay_module and self.overlay_module.stop then
+			self.overlay_module.stop(self)
+		end
+
+		self.overlay_module = nil
+	end,
 	start_game = function(self)
 		self.points = 0
 		self.lives = 3
 		self.games = {}
-		
+
 		-- Randomize the order of the games played
 		for k, v in pairs(modules) do
 			if not v.menu then
@@ -54,40 +70,10 @@ local game = {
 			self.current_game_id = 1
 		end
 
-		--print("Moving to next game!", self.current_game_id)
 		self:switch_module(self.games[self.current_game_id])
 	end
 }
---[[
-local events = {
-	register = function(self, event, handler)
-		if not self[event] then self[event] = {} end
-		local connection = {
-			event = event,
-			handler = handler,
-			disconnect = function(self2)
-				for i, v in ipairs(self[self2.event]) do
-					if v == self2 then
-						table.remove(self[self2.event], i)
-						break
-					end
-				end
-			end
-		}
-		table.insert(self[event], connection)
-		return connection
-	end,
-	fire = function(self, event, ...)
-		if self[event] then
-			for _, handler in ipairs(self[event]) do
-				handler(...)
-			end
-		end
-	end
-}
 
-game.events = events
-]]
 function love.load()
 	print("Thousand points launched.")
 
@@ -144,9 +130,9 @@ function love.keypressed(key)
 	-- If they press escape, intercept it and show the settings menu.
 	if key == "escape" then
 		if game.overlay_module then
-			game.overlay_module = nil
+			game:clear_overlay()
 		else
-			game.overlay_module = modules.settings
+			game:show_overlay(modules.settings)
 		end
 		return
 	end

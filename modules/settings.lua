@@ -4,18 +4,10 @@ local buttons = {}
 local button_spacing = 10
 local button_height = 30
 
-local function add_button(text, callback)
-	local button = {
-		text = text,
-		callback = callback,
-		is_mouse_down = false
-	}
-
-	table.insert(buttons, button)
-end
-
-local function load()
-	add_button("Scale", function(game)
+local function start(game)
+	buttons = {}
+	
+	table.insert(buttons, game.util.button("Scale", function(game)
 		game.settings.PIXEL_SIZE = game.settings.PIXEL_SIZE + 1
 
 		if game.settings.PIXEL_SIZE > 12 then
@@ -25,35 +17,30 @@ local function load()
 		if game.current_module and game.current_module.settings_update then
 			game.current_module.settings_update(game.settings)
 		end
-	end)
+	end))
 
-	add_button("Back", function(game)
-		game.overlay_module = nil
-	end)
+	if game.current_module.menu then
+		-- We got here from the main menu
+		table.insert(buttons, game.util.button("Back", function(game)
+			game:show_main_menu()
+		end))
+	else
+		-- We are ingame
+		table.insert(buttons, game.util.button("Back", function(game)
+			game.overlay_module = nil
+		end))
 
-	add_button("Quit to Menu", function(game)
-		game.overlay_module = nil
-		game:show_main_menu()
-	end)
-end
-
-local function get_max_button_width()
-	local max_width = 0
-
-	for i, v in ipairs(buttons) do
-		local width = love.graphics.getFont():getWidth(v.text)
-		if width > max_width then
-			max_width = width
-		end
+		table.insert(buttons, game.util.button("Quit to Menu", function(game)
+			game:clear_overlay()
+			game:show_main_menu()
+		end))
 	end
-
-	return max_width + 10
 end
 
 local function update(dt, game)
 	local mouse_x, mouse_y = love.mouse.getPosition()
 	local screen_w, screen_h = love.graphics.getDimensions()
-	local button_width = get_max_button_width()
+	local button_width = game.util.get_max_button_width(buttons)
 
 	for i, button in ipairs(buttons) do
 		local button_x = screen_w / 2 - button_width / 2
@@ -74,7 +61,7 @@ local function draw(game)
 	love.graphics.setColor(1, 1, 1)
 	local util = game.util
 	local screen_w, screen_h = love.graphics.getDimensions()
-	local button_width = get_max_button_width()
+	local button_width = game.util.get_max_button_width(buttons)
 
 	love.graphics.print("Settings", util.center_h("Settings", screen_w), util.center_v("Settings", screen_h) - 50)
 
@@ -101,13 +88,11 @@ local function draw(game)
 
 		love.graphics.setColor(1, 1, 1)
 	end
-
-	love.graphics.setColor(1, 1, 1)
 end
 
 return {
+	start = start,
 	update = update,
 	draw = draw,
-	load = load,
 	menu = true
 }

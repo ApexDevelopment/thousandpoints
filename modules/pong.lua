@@ -12,6 +12,8 @@ local paddle_height = 5
 local bot_score = 0
 local time_since_last_tick = 0
 
+local last_mouse_y = 0
+
 local function reset_ball()
 	ball_position.x = math.floor(FIELD_WIDTH / 2)
 	ball_position.y = math.floor(FIELD_HEIGHT / 2)
@@ -94,16 +96,19 @@ local function update_player_paddle()
 		paddle_position = paddle_position + 1
 	end
 
-	-- Update player paddle based on mouse input (if mouse is in the game field)
+	-- Update player paddle based on mouse input
 	local mouse_x, mouse_y = love.mouse.getPosition()
-	local screen_w, screen_h = love.graphics.getDimensions()
-	local field_w = FIELD_WIDTH * PIXEL_SIZE
-	local field_h = FIELD_HEIGHT * PIXEL_SIZE
-	local field_x = (screen_w - field_w) / 2
-	local field_y = (screen_h - field_h) / 2
 
-	if mouse_x >= field_x and mouse_x < field_x + field_w and mouse_y >= field_y and mouse_y < field_y + field_h then
-		paddle_position = math.floor((mouse_y - field_y) / PIXEL_SIZE)
+	if mouse_y ~= last_mouse_y then
+		local screen_w, screen_h = love.graphics.getDimensions()
+		local field_w = FIELD_WIDTH * PIXEL_SIZE
+		local field_h = FIELD_HEIGHT * PIXEL_SIZE
+		local field_x = (screen_w - field_w) / 2
+		local field_y = (screen_h - field_h) / 2
+
+		if mouse_x >= field_x and mouse_x < field_x + field_w and mouse_y >= field_y and mouse_y < field_y + field_h then
+			paddle_position = math.floor((mouse_y - field_y) / PIXEL_SIZE)
+		end
 	end
 
 	if paddle_position < 0 then
@@ -119,6 +124,8 @@ local function update_player_paddle()
 	else
 		d_paddle_position = d_paddle_position * 0.98
 	end
+
+	last_mouse_y = mouse_y
 end
 
 local function update_bot_paddle()

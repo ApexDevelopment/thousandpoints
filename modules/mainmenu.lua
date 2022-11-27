@@ -1,60 +1,79 @@
 local font = love.graphics.getFont()
-local main_menu_text = love.graphics.newText(font, "thousand points")
-local play_button_text = love.graphics.newText(font, "play")
-local is_mouse_down = false
 
-local function start()
+local buttons = {}
+local button_spacing = 10
+local button_height = 30
+
+local function start(game)
+	buttons = {}
+
+	table.insert(buttons, game.util.button("Play", function(game)
+		game:start_game()
+	end))
+
+	table.insert(buttons, game.util.button("Settings", function(game)
+		game:switch_module("settings")
+	end))
+
+	table.insert(buttons, game.util.button("Exit", function(game)
+		love.event.quit()
+	end))
+
 	font = love.graphics.getFont()
-	main_menu_text:setFont(font)
-	play_button_text:setFont(font)
-	is_mouse_down = false
 	print("Main menu started.")
 end
 
 local function update(dt, game)
 	local mouse_x, mouse_y = love.mouse.getPosition()
 	local screen_w, screen_h = love.graphics.getDimensions()
+	local button_width = game.util.get_max_button_width(buttons)
 
-	if love.mouse.isDown(1) and game.util.point_in_rect(mouse_x, mouse_y, screen_w / 2 - 50, screen_h / 2 + 40, 100, 30) then
-		if not is_mouse_down then
-			is_mouse_down = true
+	for i, button in ipairs(buttons) do
+		local button_x = screen_w / 2 - button_width / 2
+		local button_y = screen_h / 2 + (i - 1) * (button_height + button_spacing)
+
+		if love.mouse.isDown(1) and game.util.point_in_rect(mouse_x, mouse_y, button_x, button_y, button_width, button_height) then
+			if not button.is_mouse_down then
+				button.is_mouse_down = true
+			end
+		elseif button.is_mouse_down then
+			button.is_mouse_down = false
+			button.callback(game)
 		end
-	elseif is_mouse_down then
-		is_mouse_down = false
-		game:start_game()
-		--game:switch_module("tetris")
 	end
 end
 
 local function draw(game)
 	local util = game.util
 	local screen_w, screen_h = love.graphics.getDimensions()
+	local button_width = game.util.get_max_button_width(buttons)
 
-	love.graphics.draw(
-		main_menu_text,
-		util.center_h(main_menu_text, screen_w),
-		util.center_v(main_menu_text, screen_h) - 50
-	)
+	local thousand_points_text = "Thousand Points"
+	love.graphics.print(thousand_points_text, util.center_h(thousand_points_text, screen_w), util.center_v(thousand_points_text, screen_h) - 50)
 
-	if is_mouse_down then
-		love.graphics.setColor(0.2, 0.9, 0.1)
+	for i, button in ipairs(buttons) do
+		if button.is_mouse_down then
+			love.graphics.setColor(0.2, 0.9, 0.1)
+		else
+			love.graphics.setColor(1, 1, 1)
+		end
+
+		love.graphics.rectangle(
+			"line",
+			screen_w / 2 - button_width / 2,
+			screen_h / 2 + (i - 1) * (button_spacing + button_height),
+			button_width,
+			button_height
+		)
+
+		love.graphics.print(
+			button.text,
+			util.center_h(button.text, screen_w),
+			util.center_v(button.text, screen_h) + (button_height / 2) + (i - 1) * (button_spacing + button_height)
+		)
+
+		love.graphics.setColor(1, 1, 1)
 	end
-
-	love.graphics.rectangle(
-		"line",
-		screen_w / 2 - 50,
-		screen_h / 2 + 40,
-		100,
-		30
-	)
-
-	love.graphics.draw(
-		play_button_text,
-		util.center_h(play_button_text, screen_w),
-		util.center_v(play_button_text, screen_h) + 55
-	)
-
-	love.graphics.setColor(1, 1, 1)
 end
 
 return {

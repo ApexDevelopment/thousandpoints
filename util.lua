@@ -44,11 +44,34 @@ local function swap_xy_inplace(t)
 	t.x, t.y = y, x
 end
 
+local function button(text, callback)
+	return {
+		text = text,
+		callback = callback,
+		is_mouse_down = false
+	}
+end
+
+local function get_max_button_width(buttons)
+	local max_width = 0
+
+	for i, v in ipairs(buttons) do
+		local width = love.graphics.getFont():getWidth(v.text)
+		if width > max_width then
+			max_width = width
+		end
+	end
+
+	return max_width + 10
+end
+
 return {
 	point_in_rect = point_in_rect,
 	center_h = center_h,
 	center_v = center_v,
 	shuffle = shuffle,
 	shallow_copy_table = shallow_copy_table,
-	swap_xy_inplace = swap_xy_inplace
+	swap_xy_inplace = swap_xy_inplace,
+	button = button,
+	get_max_button_width = get_max_button_width
 }
