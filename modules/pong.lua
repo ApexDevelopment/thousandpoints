@@ -16,7 +16,7 @@ local last_mouse_y = 0
 
 local function reset_ball()
 	ball_position.x = math.floor(FIELD_WIDTH / 2)
-	ball_position.y = math.floor(FIELD_HEIGHT / 2)
+	ball_position.y = math.random(2, FIELD_HEIGHT - 3)
 	ball_velocity.x = -1
 	ball_velocity.y = math.random(-1, 1)
 
@@ -60,7 +60,7 @@ local function update_ball(game)
 				ball_velocity.y = (ball_velocity.y / math.abs(ball_velocity.y)) * math.min(3, math.max(1, math.floor(4 * (1 - 1 / (d_paddle_position + 1)))))
 			end
 		else
-			bot_score = bot_score + 100
+			bot_score = bot_score + 250
 			game:lose_life()
 			reset_ball()
 			return
@@ -106,10 +106,7 @@ local function update_player_paddle()
 		local field_h = FIELD_HEIGHT * PIXEL_SIZE
 		local field_x = (screen_w - field_w) / 2
 		local field_y = (screen_h - field_h) / 2
-
-		if mouse_x >= field_x and mouse_x < field_x + field_w and mouse_y >= field_y and mouse_y < field_y + field_h then
-			paddle_position = math.floor((mouse_y - field_y) / PIXEL_SIZE)
-		end
+		paddle_position = math.floor((mouse_y - field_y) / PIXEL_SIZE)
 	end
 
 	if paddle_position < 0 then
@@ -194,6 +191,7 @@ end
 
 local function start(game)
 	reset_ball()
+	bot_score = 0
 end
 
 return {

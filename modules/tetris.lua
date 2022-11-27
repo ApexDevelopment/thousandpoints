@@ -236,6 +236,15 @@ local function find_lowest_possible_y_position()
 	return lowest_y
 end
 
+local function clear_row_and_move_down(y)
+	table.remove(piece_grid, y)
+	table.insert(piece_grid, 1, {})
+
+	for x = 1, FIELD_WIDTH do
+		table.insert(piece_grid[1], 1, 0)
+	end
+end
+
 local function check_rows(game)
 	local total = 0
 	local bonus = 0
@@ -255,12 +264,7 @@ local function check_rows(game)
 			total = total + 100
 			bonus = bonus + 1
 
-			table.remove(piece_grid, y)
-			table.insert(piece_grid, 1, {})
-
-			for x = 1, FIELD_WIDTH do
-				table.insert(piece_grid[1], 1, 0)
-			end
+			clear_row_and_move_down(y)
 		else
 			-- Makes sure we don't skip a row
 			y = y - 1
@@ -315,7 +319,7 @@ local function handle_input(game)
 	end
 
 	if love.keyboard.isDown("up") then
-		if cur_time_s - last_rotation_s > rotation_speed then
+		if not key_held or cur_time_s - last_rotation_s > rotation_speed then
 			try_rotation()
 			last_rotation_s = cur_time_s
 		end
@@ -357,7 +361,12 @@ local function update(dt, game)
 				spawn_next_piece(game)
 
 				if does_next_position_overlap(rotation, 0, 0) then
-					game_over = true
+					game:lose_life()
+
+					-- Give another chance!
+					for _ = 1, 4 do
+						clear_row_and_move_down(FIELD_HEIGHT)
+					end
 				else
 					piece_landed = false
 				end

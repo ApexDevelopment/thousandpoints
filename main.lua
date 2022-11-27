@@ -72,6 +72,22 @@ local game = {
 			self.current_game_id = 1
 		end
 
+		if self.lives < 3 then
+			self.lives = self.lives + 1
+
+			self:add_animation({
+				color = {0, 1, 0}
+			}, function(state)
+				state.color[1] = state.color[1] + 0.01
+				state.color[3] = state.color[3] + 0.01
+				love.graphics.setColor(state.color)
+
+				if state.color[1] >= 1 then
+					return true
+				end
+			end)
+		end
+
 		self:switch_module(self.games[self.current_game_id])
 	end,
 	lose_life = function(self)
@@ -82,7 +98,7 @@ local game = {
 				alpha = 1,
 			}, function(state)
 				love.graphics.push("all")
-				love.graphics.setColor(1, 1, 1, state.alpha)
+				love.graphics.setColor(0.8, 0.1, 0.1, state.alpha)
 				love.graphics.rectangle("fill", 0, 0, love.graphics.getDimensions())
 				love.graphics.pop()
 				state.alpha = state.alpha - 0.005
@@ -112,7 +128,7 @@ local game = {
 	end,
 	add_score = function(self, points)
 		self.points = self.points + points
-		if self.points > 1000 then
+		if self.points >= 1000 then
 			self:next_game()
 		end
 	end,

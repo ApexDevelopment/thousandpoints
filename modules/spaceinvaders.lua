@@ -158,6 +158,7 @@ end
 
 local function start()
 	reset_alien_positions()
+	clear_bullets()
 end
 
 local function update(dt, game)
@@ -280,7 +281,8 @@ local function draw(game)
 
 	love.graphics.pop()
 	love.graphics.setColor(1, 1, 1)
-	love.graphics.print("Score: " .. game.points, 0, 0)
+	local score_text = "Score: " .. game.points
+	love.graphics.print(score_text, love.graphics.getWidth() / 2 - love.graphics.getFont():getWidth(score_text) / 2, 10)
 
 	return FIELD_WIDTH, FIELD_HEIGHT
 end

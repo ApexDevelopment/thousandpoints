@@ -1,5 +1,5 @@
-local FIELD_WIDTH = 50
-local FIELD_HEIGHT = 50
+local FIELD_WIDTH = 60
+local FIELD_HEIGHT = 40
 local PIXEL_SIZE = 10
 local TICKS_PER_SECOND = 20
 local SHRINK_BRICKS = 0.2
@@ -9,9 +9,14 @@ local ball_velocity = {x = 0, y = 0}
 local paddle_position = math.floor(FIELD_WIDTH / 2)
 local paddle_width = 5
 local bricks = {} -- Each brick is a table with x, y, width, height, and color.
+local last_hit_was_paddle = true
+local combo = 0
 local time_since_last_tick = 0
 
 local function reset_ball()
+	last_hit_was_paddle = true
+	combo = 0
+
 	ball_position.x = math.floor(FIELD_WIDTH / 2)
 	ball_position.y = math.floor(FIELD_HEIGHT / 2)
 	ball_velocity.x = math.random(-2, 2)
@@ -41,6 +46,7 @@ end
 local function check_paddle_collision(x, y, game)
 	if y > FIELD_HEIGHT - 3 then
 		if x >= paddle_position and x < paddle_position + paddle_width then
+			last_hit_was_paddle = true
 			return true, 0, -1, 1, -1
 		else
 			reset_ball()
@@ -56,7 +62,13 @@ local function check_brick_collision(prev_x, prev_y, x, y, game)
 	for i, brick in ipairs(bricks) do
 		if x >= brick.x and x < brick.x + brick.width and y >= brick.y and y < brick.y + brick.height then
 			table.remove(bricks, i)
-			game:add_score(50)
+
+			if not last_hit_was_paddle then
+				combo = combo + 1
+			end
+
+			game:add_score(50 + combo * 10)
+			last_hit_was_paddle = false
 
 			local x_collision_left = false
 			local x_collision_right = false
