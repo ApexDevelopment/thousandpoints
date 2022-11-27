@@ -56,7 +56,6 @@ local grav_speed = 0.3 -- Gravity speed in seconds
 local input_speed = 0.06 -- Input poll delay in seconds
 local rotation_speed = 0.2 -- Rotation delay in seconds
 local key_held = false
-local score = 0
 local game_over = false
 local soft_drop = false
 local hard_drop = false
@@ -200,7 +199,7 @@ local function try_rotation()
 	end
 end
 
-local function advance_piece_or_collide()
+local function advance_piece_or_collide(game)
 	if does_next_position_overlap(rotation, 0, 1) then
 		-- Collide
 		for i = 1, 4 do
@@ -216,7 +215,7 @@ local function advance_piece_or_collide()
 		piece_position.y = piece_position.y + 1
 
 		if soft_drop or hard_drop then
-			score = score + 1
+			game.points = game.points + 1
 		end
 	end
 end
@@ -237,7 +236,7 @@ local function find_lowest_possible_y_position()
 	return lowest_y
 end
 
-local function check_rows()
+local function check_rows(game)
 	local total = 0
 	local bonus = 0
 	local y = FIELD_HEIGHT
@@ -281,10 +280,10 @@ local function check_rows()
 	end
 	]]
 
-	score = score + total
+	game.points = game.points + total
 end
 
-local function handle_input()
+local function handle_input(game)
 	local new_key_held = false
 
 	if love.keyboard.isDown("left") then
@@ -329,7 +328,7 @@ local function handle_input()
 		if not hard_drop then
 			hard_drop = true
 			while not piece_landed do
-				advance_piece_or_collide()
+				advance_piece_or_collide(game)
 			end
 		end
 	else
@@ -343,14 +342,8 @@ local function update(dt, game)
 	if not game_over then
 		cur_time_s = cur_time_s + dt
 
-		if score >= 1000 then
-			game_over = true
-			game:next_game()
-			return
-		end
-
 		if not key_held or cur_time_s - last_input_s >= input_speed then
-			handle_input()
+			handle_input(game)
 			last_input_s = cur_time_s
 		end
 
@@ -358,9 +351,9 @@ local function update(dt, game)
 			last_grav_s = cur_time_s
 
 			if not piece_landed then
-				advance_piece_or_collide()
+				advance_piece_or_collide(game)
 			else
-				check_rows()
+				check_rows(game)
 				spawn_next_piece(game)
 
 				if does_next_position_overlap(rotation, 0, 0) then
@@ -421,7 +414,7 @@ local function draw(game)
 	end
 
 	love.graphics.pop()
-	local score_text = "Score: " .. score
+	local score_text = "Score: " .. game.points
 	love.graphics.print(score_text, love.graphics.getWidth() / 2 - love.graphics.getFont():getWidth(score_text) / 2, 10);
 end
 

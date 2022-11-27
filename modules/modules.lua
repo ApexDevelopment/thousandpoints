@@ -13,6 +13,7 @@ end
 --load_module("testmodule")
 load_module("mainmenu")
 load_module("settings")
+load_module("gameover")
 -- Game modules
 load_module("pong")
 load_module("spaceinvaders")

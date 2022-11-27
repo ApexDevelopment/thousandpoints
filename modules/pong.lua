@@ -9,7 +9,7 @@ local paddle_position = 0
 local d_paddle_position = 0
 local bot_paddle_position = 0
 local paddle_height = 5
-local score = {player = 0, bot = 0}
+local bot_score = 0
 local time_since_last_tick = 0
 
 local function reset_ball()
@@ -23,7 +23,7 @@ local function reset_ball()
 	end
 end
 
-local function update_ball()
+local function update_ball(game)
 	-- Check for any collisions that may occur between where the ball is now and where it will be next tick.
 	local ball_next_position = {x = ball_position.x + ball_velocity.x, y = ball_position.y + ball_velocity.y}
 
@@ -58,7 +58,7 @@ local function update_ball()
 				ball_velocity.y = (ball_velocity.y / math.abs(ball_velocity.y)) * math.min(3, math.max(1, math.floor(4 * (1 - 1 / (d_paddle_position + 1)))))
 			end
 		else
-			score.bot = score.bot + 100
+			bot_score = bot_score + 100
 			reset_ball()
 			return
 		end
@@ -74,7 +74,7 @@ local function update_ball()
 				ball_velocity.y = 1
 			end
 		else
-			score.player = score.player + 100
+			game.points = game.points + 100
 			reset_ball()
 			return
 		end
@@ -143,16 +143,12 @@ local function update(dt, game)
 	time_since_last_tick = time_since_last_tick + dt
 
 	if time_since_last_tick >= 1 / TICKS_PER_SECOND then
-		update_ball()
+		update_ball(game)
 		update_bot_paddle()
 		time_since_last_tick = 0
 	end
 
 	update_player_paddle()
-
-	if score.player >= 1000 then
-		game:next_game()
-	end
 end
 
 local function draw(game)
@@ -175,7 +171,7 @@ local function draw(game)
 	love.graphics.pop()
 
 	-- Draw scores
-	local score_text = score.player .. " - " .. score.bot
+	local score_text = game.points .. " - " .. bot_score
 	local score_text_width = love.graphics.getFont():getWidth(score_text)
 	local score_text_height = love.graphics.getFont():getHeight()
 	local score_label_text = "Score"

@@ -9,7 +9,6 @@ local ball_velocity = {x = 0, y = 0}
 local paddle_position = math.floor(FIELD_WIDTH / 2)
 local paddle_width = 5
 local bricks = {} -- Each brick is a table with x, y, width, height, and color.
-local score = 0
 local time_since_last_tick = 0
 
 local function reset_ball()
@@ -52,11 +51,11 @@ local function check_paddle_collision(x, y)
 	return false, 0, 0, 1, 1
 end
 
-local function check_brick_collision(prev_x, prev_y, x, y)
+local function check_brick_collision(prev_x, prev_y, x, y, game)
 	for i, brick in ipairs(bricks) do
 		if x >= brick.x and x < brick.x + brick.width and y >= brick.y and y < brick.y + brick.height then
 			table.remove(bricks, i)
-			score = score + 50
+			game.points = game.points + 50
 
 			local x_collision_left = false
 			local x_collision_right = false
@@ -98,7 +97,7 @@ local function check_brick_collision(prev_x, prev_y, x, y)
 	return false, 0, 0, 1, 1
 end
 
-local function update_ball()
+local function update_ball(game)
 	-- Check for any collisions that may occur between where the ball is now and where it will be next tick.
 	local ball_velocity_x = ball_velocity.x
 	local ball_velocity_y = ball_velocity.y
@@ -147,7 +146,7 @@ local function update_ball()
 			end
 		end
 
-		collided, x_move, y_move, x_vel_mult, y_vel_mult = check_brick_collision(ball_position.x, ball_position.y, ball_next_position_x, ball_next_position_y)
+		collided, x_move, y_move, x_vel_mult, y_vel_mult = check_brick_collision(ball_position.x, ball_position.y, ball_next_position_x, ball_next_position_y, game)
 		if collided then
 			ball_next_position_x = ball_next_position_x + x_move
 			ball_next_position_y = ball_next_position_y + y_move
@@ -200,6 +199,8 @@ local function color_for_location(x, y)
 end
 
 local function generate_bricks()
+	bricks = {}
+
 	-- Set brick width based on field width
 	local brick_width = math.floor(FIELD_WIDTH / 10)
 	if brick_width < 1 then
@@ -233,15 +234,11 @@ local function update(dt, game)
 	time_since_last_tick = time_since_last_tick + dt
 
 	if time_since_last_tick >= 1 / TICKS_PER_SECOND then
-		update_ball()
+		update_ball(game)
 		time_since_last_tick = 0
 	end
 
 	update_paddle()
-
-	if score >= 1000 then
-		game:next_game()
-	end
 end
 
 local function draw(game)
@@ -269,7 +266,7 @@ local function draw(game)
 	love.graphics.rectangle("fill", paddle_position, FIELD_HEIGHT - 2, paddle_width, 1)
 
 	love.graphics.pop()
-	local score_text = "Score: " .. score
+	local score_text = "Score: " .. game.points
 	love.graphics.print(score_text, love.graphics.getWidth() / 2 - love.graphics.getFont():getWidth(score_text) / 2, 10);
 end
 

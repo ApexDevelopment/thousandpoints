@@ -39,10 +39,16 @@ local function shallow_copy_table(t)
 	return copy
 end
 
+local function swap_xy_inplace(t)
+	local x, y = t.x, t.y
+	t.x, t.y = y, x
+end
+
 return {
 	point_in_rect = point_in_rect,
 	center_h = center_h,
 	center_v = center_v,
 	shuffle = shuffle,
-	shallow_copy_table = shallow_copy_table
+	shallow_copy_table = shallow_copy_table,
+	swap_xy_inplace = swap_xy_inplace
 }

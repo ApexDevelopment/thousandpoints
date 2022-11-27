@@ -38,15 +38,10 @@ local game_freeze_timer = 0
 local ship_blink_timer = 0
 local ship_blink_state = false
 
-local score = 0
-
 local function reset_alien_positions()
 	for i = 1, NUM_ALIENS do
 		alien_positions[i] = {x = (i - 1) % NUM_ALIENS_IN_ROW, y = math.floor((i - 1) / NUM_ALIENS_IN_ROW) + 1}
 	end
-	-- for i = 1, NUM_ALIENS do
-	-- 	alien_positions[i] = {x = i % NUM_ALIENS_IN_ROW, y = math.floor(i / NUM_ALIENS_IN_ROW)}
-	-- end
 end
 
 local function clear_bullets()
@@ -81,13 +76,6 @@ local function update_alien_positions()
 			alien_positions[i].x = alien_positions[i].x + alien_direction
 		end
 	end
-
---[[
-	if alien_tick >= alien_tick_threshold then
-		alien_tick = 0
-		--alien_direction = -alien_direction
-		move_aliens_down()
-	end]]
 end
 
 local function update_bullets()
@@ -112,14 +100,14 @@ local function update_bullets()
 	end
 end
 
-local function check_bullet_collision()
+local function check_bullet_collision(game)
 	if #bullet_positions ~= 0 then
 		for i = 1, #bullet_positions do
 			for j = 1, #alien_positions do
 				if bullet_positions[i].x == alien_positions[j].x and bullet_positions[i].y == alien_positions[j].y then
 					table.remove(bullet_positions, i)
 					table.remove(alien_positions, j)
-					score = score + 50
+					game.points = game.points + 50
 					return
 				end
 			end
@@ -130,7 +118,7 @@ local function check_bullet_collision()
 		for i = 1, #alien_bullet_positions do
 			if alien_bullet_positions[i].x == ship_position and alien_bullet_positions[i].y == FIELD_HEIGHT - 1 then
 				alien_bullet_positions[i].y = alien_bullet_positions[i].y - 1 -- Just so the death anim looks better
-				score = score - 100 -- TODO: Just lose a life
+				game.lives = game.lives - 1
 				game_freeze_timer = 3
 				return
 			end
@@ -203,13 +191,9 @@ local function update(dt, game)
 		end
 
 		bullet_cooldown = math.max(0, bullet_cooldown - 1)
-		check_bullet_collision()
+		check_bullet_collision(game)
 		update_player_position()
 		fire_bullet()
-	end
-
-	if score >= 1000 then
-		game:next_game()
 	end
 end
 
@@ -304,7 +288,7 @@ local function draw(game)
 
 	love.graphics.pop()
 	love.graphics.setColor(1, 1, 1)
-	love.graphics.print("Score: " .. score, 0, 0)
+	love.graphics.print("Score: " .. game.points, 0, 0)
 end
 
 return { start = start, update = update, draw = draw }
