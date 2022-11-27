@@ -5,6 +5,20 @@ local NUM_ALIENS_IN_ROW = (FIELD_WIDTH - 4)
 local NUM_ALIEN_ROWS = 4
 local NUM_ALIENS = NUM_ALIENS_IN_ROW * NUM_ALIEN_ROWS
 
+local SHIP_SPRITE = {
+	{0, 0, 1, 0, 0},
+	{0, 1, 1, 1, 0},
+	{0, 1, 0, 1, 0},
+	{1, 1, 1, 1, 1},
+	{1, 0, 0, 0, 1}
+}
+
+local ALIEN_SPRITE = {
+	{1, 0, 1},
+	{1, 1, 1},
+	{0, 1, 0}
+}
+
 local time_since_last_tick = 0
 
 local ship_position = math.floor(FIELD_WIDTH / 2)
@@ -115,6 +129,7 @@ local function check_bullet_collision()
 	if #alien_bullet_positions ~= 0 then
 		for i = 1, #alien_bullet_positions do
 			if alien_bullet_positions[i].x == ship_position and alien_bullet_positions[i].y == FIELD_HEIGHT - 1 then
+				alien_bullet_positions[i].y = alien_bullet_positions[i].y - 1 -- Just so the death anim looks better
 				score = score - 100 -- TODO: Just lose a life
 				game_freeze_timer = 3
 				return
@@ -212,25 +227,49 @@ local function draw(game)
 	-- Draw aliens
 	love.graphics.setColor(1, 1, 1)
 	for i = 1, #alien_positions do
-		love.graphics.rectangle(
-			"fill",
-			alien_positions[i].x + 0.1,
-			alien_positions[i].y + 0.1,
-			0.8,
-			0.8
-		)
+		love.graphics.push()
+		love.graphics.translate(alien_positions[i].x + 0.25, alien_positions[i].y + 0.25)
+		love.graphics.scale(1/4, 1/4)
+		for y = 1, 3 do
+			for x = 1, 3 do
+				if ALIEN_SPRITE[y][x] == 1 then
+					love.graphics.rectangle(
+						"fill",
+						x - 1,
+						y - 1,
+						1,
+						1
+					)
+				end
+			end
+		end
+		love.graphics.pop()
 	end
 
 	-- Draw ship
 	if not ship_blink_state then
-		love.graphics.setColor(1, 1, 0)
-		love.graphics.rectangle(
-			"fill",
-			ship_position,
-			FIELD_HEIGHT - 1,
-			1,
-			1
-		)
+		-- love.graphics.setColor(1, 1, 0)
+		-- love.graphics.rectangle(
+		-- 	"fill",
+		-- 	ship_position,
+		-- 	FIELD_HEIGHT - 1,
+		-- 	1,
+		-- 	1
+		-- )
+		love.graphics.setColor(1, 1, 1)
+		for y = 1, 5 do
+			for x = 1, 5 do
+				if SHIP_SPRITE[y][x] == 1 then
+					love.graphics.rectangle(
+						"fill",
+						ship_position + (x - 1) / 5,
+						FIELD_HEIGHT - 1.3 + (y - 1) / 5,
+						0.2,
+						0.2
+					)
+				end
+			end
+		end
 	end
 
 	-- Draw bullets
