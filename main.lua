@@ -14,6 +14,7 @@ local game = {
 	lives = 3,
 	current_module = nil,
 	overlay_module = nil,
+	animations = {},
 	switch_module = function(self, new_module)
 		if type(new_module) == "string" then new_module = modules[new_module] end
 
@@ -74,9 +75,38 @@ local game = {
 	end,
 	lose_life = function(self)
 		self.lives = self.lives - 1
+
 		if self.lives < 0 then
+			self:add_animation({
+				alpha = 1,
+			}, function(state)
+				love.graphics.push("all")
+				love.graphics.setColor(1, 1, 1, state.alpha)
+				love.graphics.rectangle("fill", 0, 0, love.graphics.getDimensions())
+				love.graphics.pop()
+				state.alpha = state.alpha - 0.005
+
+				if state.alpha <= 0 then
+					return true
+				end
+			end)
+
 			self.lives = 3
 			self:switch_module(modules.gameover)
+		else
+			self:add_animation({
+				intensity = 10,
+			}, function(state)
+				local intensity = state.intensity
+				local xoff = math.random(-intensity, intensity)
+				local yoff = math.random(-intensity, intensity)
+				state.intensity = intensity - 0.5
+				love.graphics.translate(xoff, yoff)
+
+				if state.intensity <= 0 then
+					return true
+				end
+			end)
 		end
 	end,
 	add_score = function(self, points)
@@ -84,6 +114,14 @@ local game = {
 		if self.points > 1000 then
 			self:next_game()
 		end
+	end,
+	add_animation = function(self, state, callback)
+		local animation = {
+			state = state,
+			callback = callback
+		}
+
+		table.insert(self.animations, animation)
 	end
 }
 
@@ -114,19 +152,36 @@ end
 
 function love.draw()
 	if game.current_module then
+		love.graphics.push("all")
+		for i = #game.animations, 1, -1 do
+			local done = game.animations[i].callback(game.animations[i].state)
+			if done then
+				table.remove(game.animations, i)
+			end
+		end
+
 		if game.overlay_module then
 			game.shaders.blur(function() game.current_module.draw(game) end)
 		elseif not game.current_module.menu then
 			local game_w, game_h = game.current_module.draw(game)
 			local bottom_pos = game_h * game.settings.PIXEL_SIZE / 2 + love.graphics.getHeight() / 2
 			local left_pos  = love.graphics.getWidth() / 2 - game_w * game.settings.PIXEL_SIZE / 2
+			local counter = 1
 
-			for i = 0, game.lives do
-				love.graphics.rectangle("fill", left_pos + 20 * i, bottom_pos + 10, 16, 16)
+			love.graphics.setColor(0, 0.7, 0)
+			for i = 1, game.lives do
+				love.graphics.rectangle("fill", left_pos + 20 * (i - 1), bottom_pos + 10, 16, 16)
+				counter = counter + 1
+			end
+			love.graphics.setColor(1, 1, 1)
+
+			for i = counter, 3 do
+				love.graphics.rectangle("line", left_pos + 20 * (i - 1), bottom_pos + 10, 16, 16)
 			end
 		else
 			game.current_module.draw(game)
 		end
+		love.graphics.pop()
 	end
 
 	if game.overlay_module then

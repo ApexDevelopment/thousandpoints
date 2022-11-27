@@ -6,7 +6,7 @@ local button_height = 30
 
 local function start(game)
 	buttons = {}
-	
+
 	table.insert(buttons, game.util.button("Scale", function(game)
 		game.settings.PIXEL_SIZE = game.settings.PIXEL_SIZE + 1
 
