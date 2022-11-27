@@ -7,30 +7,34 @@ local button_height = 30
 local function start(game)
 	buttons = {}
 
-	table.insert(buttons, game.util.button("Scale", function(game)
+	table.insert(buttons, game.util.button("Scale: " .. tostring(game.settings.PIXEL_SIZE), function(this, game)
 		game.settings.PIXEL_SIZE = game.settings.PIXEL_SIZE + 1
 
 		if game.settings.PIXEL_SIZE > 12 then
 			game.settings.PIXEL_SIZE = 5
 		end
-		-- If the current module has a settings update function, call it
-		if game.current_module and game.current_module.settings_update then
-			game.current_module.settings_update(game.settings)
-		end
+
+		this.text = "Scale: " .. tostring(game.settings.PIXEL_SIZE)
+	end))
+
+	table.insert(buttons, game.util.button("Animations: " .. (game.settings.ANIMATIONS and "On" or "Off"), function(this, game)
+		game.settings.ANIMATIONS = not game.settings.ANIMATIONS
+
+		this.text = "Animations: " .. (game.settings.ANIMATIONS and "On" or "Off")
 	end))
 
 	if game.current_module.menu then
 		-- We got here from the main menu
-		table.insert(buttons, game.util.button("Back", function(game)
+		table.insert(buttons, game.util.button("Back", function(_, game)
 			game:show_main_menu()
 		end))
 	else
 		-- We are ingame
-		table.insert(buttons, game.util.button("Back", function(game)
+		table.insert(buttons, game.util.button("Back", function(_, game)
 			game.overlay_module = nil
 		end))
 
-		table.insert(buttons, game.util.button("Quit to Menu", function(game)
+		table.insert(buttons, game.util.button("Quit to Menu", function(_, game)
 			game:clear_overlay()
 			game:show_main_menu()
 		end))
@@ -52,7 +56,7 @@ local function update(dt, game)
 			end
 		elseif button.is_mouse_down then
 			button.is_mouse_down = false
-			button.callback(game)
+			button:callback(game)
 		end
 	end
 end

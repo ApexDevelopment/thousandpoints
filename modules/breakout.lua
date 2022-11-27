@@ -227,10 +227,6 @@ local function start()
 	generate_bricks()
 	reset_ball()
 end
-
-local function settings_update(settings)
-end
-
 local function update(dt, game)
 	time_since_last_tick = time_since_last_tick + dt
 
@@ -273,4 +269,8 @@ local function draw(game)
 	return FIELD_WIDTH, FIELD_HEIGHT
 end
 
-return { update = update, draw = draw, start = start, settings_update = settings_update }
+return {
+	update = update,
+	draw = draw,
+	start = start
+}

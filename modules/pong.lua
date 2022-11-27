@@ -192,14 +192,12 @@ local function draw(game)
 	return FIELD_WIDTH, FIELD_HEIGHT
 end
 
-local function keypressed(key, game)
-	if key == "escape" then
-		game:switch_module("mainmenu")
-	end
-end
-
 local function start(game)
 	reset_ball()
 end
 
-return { update = update, draw = draw, start = start, keypressed = keypressed }
+return {
+	update = update,
+	draw = draw,
+	start = start
+}

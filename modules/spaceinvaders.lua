@@ -285,4 +285,8 @@ local function draw(game)
 	return FIELD_WIDTH, FIELD_HEIGHT
 end
 
-return { start = start, update = update, draw = draw }
+return {
+	start = start,
+	update = update,
+	draw = draw
+}

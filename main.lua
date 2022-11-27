@@ -5,7 +5,8 @@ math.randomseed(os.time())
 
 local game = {
 	settings = {
-		PIXEL_SIZE = 10
+		PIXEL_SIZE = 10,
+		ANIMATIONS = true
 	},
 	games = {},
 	current_game_id = 1,
@@ -116,6 +117,8 @@ local game = {
 		end
 	end,
 	add_animation = function(self, state, callback)
+		if not self.settings.ANIMATIONS then return end
+
 		local animation = {
 			state = state,
 			callback = callback
