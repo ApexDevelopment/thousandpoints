@@ -217,7 +217,6 @@ local function draw(game)
 	love.graphics.push()
 	love.graphics.translate(love.graphics.getWidth() / 2 - FIELD_WIDTH * PIXEL_SIZE / 2, love.graphics.getHeight() / 2 - FIELD_HEIGHT * PIXEL_SIZE / 2)
 
-	love.graphics.setColor(1, 1, 1)
 	love.graphics.rectangle("line", 0, 0, FIELD_WIDTH * PIXEL_SIZE, FIELD_HEIGHT * PIXEL_SIZE)
 
 	love.graphics.scale(PIXEL_SIZE, PIXEL_SIZE)

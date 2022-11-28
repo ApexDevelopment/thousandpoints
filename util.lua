@@ -125,7 +125,7 @@ end
 
 local function is_move_left()
 	if love.keyboard.isDown("left") or love.keyboard.isDown("a") or is_gamepad_down_on_any_joystick("dpleft") then
-		return 1
+		return 0.6
 	else
 		return is_gamepad_stick_left_on_any_joystick("right")
 	end
@@ -133,7 +133,7 @@ end
 
 local function is_move_right()
 	if love.keyboard.isDown("right") or love.keyboard.isDown("d") or is_gamepad_down_on_any_joystick("dpright") then
-		return 1
+		return 0.6
 	else
 		return is_gamepad_stick_right_on_any_joystick("right")
 	end
@@ -141,7 +141,7 @@ end
 
 local function is_move_up()
 	if love.keyboard.isDown("up") or love.keyboard.isDown("w") or is_gamepad_down_on_any_joystick("dpup") then
-		return 1
+		return 0.6
 	else
 		return is_gamepad_stick_up_on_any_joystick("right")
 	end
@@ -149,14 +149,14 @@ end
 
 local function is_move_down()
 	if love.keyboard.isDown("down") or love.keyboard.isDown("s") or is_gamepad_down_on_any_joystick("dpdown") then
-		return 1
+		return 0.6
 	else
 		return is_gamepad_stick_down_on_any_joystick("right")
 	end
 end
 
 local function is_action()
-	return love.keyboard.isDown("space") or love.keyboard.isDown("return") or love.mouse.isDown(1) or is_gamepad_down_on_any_joystick("a") or is_gamepad_down_on_any_joystick("triggerleft") or is_gamepad_down_on_any_joystick("triggerright")
+	return love.keyboard.isDown("space") or love.keyboard.isDown("return") or love.mouse.isDown(1) or is_gamepad_down_on_any_joystick("a")
 end
 
 return {
