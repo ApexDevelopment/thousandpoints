@@ -20,16 +20,12 @@ local function reset_ball()
 	combo = 0
 
 	ball_position.x = math.floor(FIELD_WIDTH / 2)
-	ball_position.y = math.floor(FIELD_HEIGHT / 2)
+	ball_position.y = FIELD_HEIGHT - 2
 	ball_velocity.x = math.random(-2, 2)
-	ball_velocity.y = math.random(-2, 2)
+	ball_velocity.y = math.random(-2, -1)
 
 	if ball_velocity.x == 0 then
 		ball_velocity.x = 1
-	end
-
-	if ball_velocity.y == 0 then
-		ball_velocity.y = 1
 	end
 end
 
@@ -185,12 +181,11 @@ local function update_paddle()
 
 	-- Update player paddle based on mouse input (if mouse is in the game field)
 
-	local mouse_x, mouse_y = love.mouse.getPosition()
+	local mouse_x = love.mouse.getX()
 
 	if mouse_x ~= last_mouse_x then
-		local screen_w, screen_h = love.graphics.getDimensions()
+		local screen_w = love.graphics.getDimensions()
 		local field_w = FIELD_WIDTH * PIXEL_SIZE
-		local field_h = FIELD_HEIGHT * PIXEL_SIZE
 		local field_x = (screen_w - field_w) / 2
 		paddle_position = math.floor((mouse_x - field_x) / PIXEL_SIZE)
 	end
@@ -200,6 +195,8 @@ local function update_paddle()
 	elseif paddle_position > FIELD_WIDTH - paddle_width then
 		paddle_position = FIELD_WIDTH - paddle_width
 	end
+
+	last_mouse_x = mouse_x
 end
 
 local function color_for_location(x, y)

@@ -98,11 +98,10 @@ local function update_player_paddle()
 	end
 
 	-- Update player paddle based on mouse input
-	local mouse_x, mouse_y = love.mouse.getPosition()
+	local mouse_y = love.mouse.getY()
 
 	if mouse_y ~= last_mouse_y then
 		local screen_w, screen_h = love.graphics.getDimensions()
-		local field_w = FIELD_WIDTH * PIXEL_SIZE
 		local field_h = FIELD_HEIGHT * PIXEL_SIZE
 		local field_y = (screen_h - field_h) / 2
 		paddle_position = math.floor((mouse_y - field_y) / PIXEL_SIZE)

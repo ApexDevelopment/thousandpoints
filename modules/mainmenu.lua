@@ -20,6 +20,10 @@ local function start(game)
 		game:switch_module("settings")
 	end))
 
+	table.insert(buttons, game.util.button("About", function(game)
+		game:switch_module("about")
+	end))
+
 	table.insert(buttons, game.util.button("Exit", function(game)
 		love.event.quit()
 	end))

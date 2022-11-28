@@ -14,6 +14,7 @@ end
 load_module("mainmenu")
 load_module("settings")
 load_module("gameover")
+load_module("about")
 -- Game modules
 load_module("pong")
 load_module("spaceinvaders")

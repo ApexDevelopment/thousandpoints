@@ -1,9 +1,12 @@
 local FIELD_WIDTH = 60
 local FIELD_HEIGHT = 40
+local PIXEL_SIZE = 10
 local TICKS_PER_SECOND = 20
 local NUM_ALIENS_IN_ROW = (FIELD_WIDTH - 4)
 local NUM_ALIEN_ROWS = 4
 local NUM_ALIENS = NUM_ALIENS_IN_ROW * NUM_ALIEN_ROWS
+
+local last_mouse_x = 0
 
 local SHIP_SPRITE = {
 	{0, 0, 1, 0, 0},
@@ -27,7 +30,6 @@ local alien_positions = {}
 local alien_bullet_positions = {}
 local alien_direction = 1
 local alien_tick = 0
-local alien_tick_threshold = TICKS_PER_SECOND * 5
 
 local bullet_positions = {}
 local bullet_velocity = 1
@@ -135,17 +137,27 @@ local function update_player_position()
 		ship_position = ship_position + 1
 	end
 
-	if ship_position < 0 then
-		ship_position = 0
+	-- Handle mouse input
+	local mouse_x = love.mouse.getX()
+
+	if mouse_x ~= last_mouse_x then
+		local screen_w = love.graphics.getDimensions()
+		local field_w = FIELD_WIDTH * PIXEL_SIZE
+		local field_x = (screen_w - field_w) / 2
+		ship_position = math.floor((mouse_x - field_x) / PIXEL_SIZE)
 	end
 
-	if ship_position >= FIELD_WIDTH then
+	if ship_position < 0 then
+		ship_position = 0
+	elseif ship_position >= FIELD_WIDTH then
 		ship_position = FIELD_WIDTH - 1
 	end
+
+	last_mouse_x = mouse_x
 end
 
 local function fire_bullet()
-	if #bullet_positions < 2 and bullet_cooldown == 0 and love.keyboard.isDown("space") then
+	if #bullet_positions < 2 and bullet_cooldown == 0 and (love.keyboard.isDown("space") or love.mouse.isDown(1)) then
 		table.insert(bullet_positions, {x = ship_position, y = FIELD_HEIGHT - 2})
 		bullet_cooldown = 25
 	end
@@ -199,7 +211,7 @@ local function update(dt, game)
 end
 
 local function draw(game)
-	local PIXEL_SIZE = game.settings.PIXEL_SIZE
+	PIXEL_SIZE = game.settings.PIXEL_SIZE
 
 	love.graphics.push()
 	love.graphics.translate(love.graphics.getWidth() / 2 - FIELD_WIDTH * PIXEL_SIZE / 2, love.graphics.getHeight() / 2 - FIELD_HEIGHT * PIXEL_SIZE / 2)
