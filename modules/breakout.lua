@@ -13,6 +13,8 @@ local last_hit_was_paddle = true
 local combo = 0
 local time_since_last_tick = 0
 
+local last_mouse_x = 0
+
 local function reset_ball()
 	last_hit_was_paddle = true
 	combo = 0
@@ -182,14 +184,14 @@ local function update_paddle()
 	end
 
 	-- Update player paddle based on mouse input (if mouse is in the game field)
-	local mouse_x, mouse_y = love.mouse.getPosition()
-	local screen_w, screen_h = love.graphics.getDimensions()
-	local field_w = FIELD_WIDTH * PIXEL_SIZE
-	local field_h = FIELD_HEIGHT * PIXEL_SIZE
-	local field_x = (screen_w - field_w) / 2
-	local field_y = (screen_h - field_h) / 2
 
-	if mouse_x >= field_x and mouse_x < field_x + field_w and mouse_y >= field_y and mouse_y < field_y + field_h then
+	local mouse_x, mouse_y = love.mouse.getPosition()
+
+	if mouse_x ~= last_mouse_x then
+		local screen_w, screen_h = love.graphics.getDimensions()
+		local field_w = FIELD_WIDTH * PIXEL_SIZE
+		local field_h = FIELD_HEIGHT * PIXEL_SIZE
+		local field_x = (screen_w - field_w) / 2
 		paddle_position = math.floor((mouse_x - field_x) / PIXEL_SIZE)
 	end
 

@@ -104,7 +104,6 @@ local function update_player_paddle()
 		local screen_w, screen_h = love.graphics.getDimensions()
 		local field_w = FIELD_WIDTH * PIXEL_SIZE
 		local field_h = FIELD_HEIGHT * PIXEL_SIZE
-		local field_x = (screen_w - field_w) / 2
 		local field_y = (screen_h - field_h) / 2
 		paddle_position = math.floor((mouse_y - field_y) / PIXEL_SIZE)
 	end
