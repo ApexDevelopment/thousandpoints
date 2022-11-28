@@ -44,6 +44,8 @@ local ship_blink_timer = 0
 local ship_blink_state = false
 
 local function reset_alien_positions()
+	alien_positions = {}
+
 	for i = 1, NUM_ALIENS do
 		alien_positions[i] = {x = (i - 1) % NUM_ALIENS_IN_ROW, y = math.floor((i - 1) / NUM_ALIENS_IN_ROW) + 1}
 	end
@@ -60,7 +62,7 @@ local function move_aliens_down()
 	end
 end
 
-local function update_alien_positions()
+local function update_alien_positions(game)
 	alien_tick = alien_tick + 1
 
 	if alien_tick % 20 == 0 then
@@ -79,6 +81,13 @@ local function update_alien_positions()
 
 		for i = 1, #alien_positions do
 			alien_positions[i].x = alien_positions[i].x + alien_direction
+
+			if alien_positions[i].y == FIELD_HEIGHT - 1 then
+				reset_alien_positions()
+				game:lose_life()
+				game_freeze_timer = 3
+				return
+			end
 		end
 	end
 end
@@ -170,6 +179,7 @@ end
 
 local function start(game)
 	util = game.util
+	game_freeze_timer = 0
 	reset_alien_positions()
 	clear_bullets()
 end
