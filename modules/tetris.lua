@@ -48,6 +48,8 @@ local PIECE_COLORS = {
 
 local PIECE_NAMES = {"I", "O", "T", "S", "Z", "J", "L"}
 
+local util
+
 local cur_time_s = 0
 local last_grav_s = 0 -- Last time gravity was applied to the piece
 local last_input_s = 0 -- Last time the player pressed a key
@@ -290,7 +292,7 @@ end
 local function handle_input(game)
 	local new_key_held = false
 
-	if love.keyboard.isDown("left") then
+	if util.is_move_left() ~= 0 then
 		if not does_next_position_overlap(rotation, -1, 0) then
 			piece_position.x = piece_position.x - 1
 		end
@@ -298,7 +300,7 @@ local function handle_input(game)
 		new_key_held = true
 	end
 
-	if love.keyboard.isDown("right") then
+	if util.is_move_right() ~= 0 then
 		if not does_next_position_overlap(rotation, 1, 0) then
 			piece_position.x = piece_position.x + 1
 		end
@@ -306,7 +308,7 @@ local function handle_input(game)
 		new_key_held = true
 	end
 
-	if love.keyboard.isDown("down") then
+	if util.is_move_down() ~= 0 then
 		if not soft_drop then
 			grav_speed = 0.03
 			soft_drop = true
@@ -318,7 +320,7 @@ local function handle_input(game)
 		soft_drop = false
 	end
 
-	if love.keyboard.isDown("up") then
+	if util.is_move_up() ~= 0 then
 		if not key_held or cur_time_s - last_rotation_s > rotation_speed then
 			try_rotation()
 			last_rotation_s = cur_time_s
@@ -327,7 +329,7 @@ local function handle_input(game)
 		new_key_held = true
 	end
 
-	if love.keyboard.isDown("space") then
+	if util.is_action() then
 		-- Don't allow hard drop if we hard dropped the last piece
 		if not hard_drop then
 			hard_drop = true
@@ -428,6 +430,8 @@ local function draw(game)
 end
 
 local function start(game)
+	util = game.util
+
 	-- Initialize the piece grid
 	for y = 1, FIELD_HEIGHT do
 		piece_grid[y] = {}

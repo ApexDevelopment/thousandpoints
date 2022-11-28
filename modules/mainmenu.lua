@@ -59,6 +59,8 @@ local function update(dt, game)
 	end
 end
 
+local highlighted = 0
+
 local function draw(game)
 	local util = game.util
 	local screen_w, screen_h = love.graphics.getDimensions()
@@ -77,6 +79,8 @@ local function draw(game)
 		for i, button in ipairs(buttons) do
 			if button.is_mouse_down then
 				love.graphics.setColor(0.2, 0.9, 0.1)
+			elseif highlighted == i then
+				love.graphics.setColor(0.9, 0.9, 0.1)
 			else
 				love.graphics.setColor(1, 1, 1)
 			end
@@ -100,9 +104,30 @@ local function draw(game)
 	end
 end
 
+local function navigate_down()
+	highlighted = highlighted + 1
+	if highlighted > #buttons then
+		highlighted = 1
+	end
+end
+
+local function navigate_up()
+	highlighted = highlighted - 1
+	if highlighted < 1 then
+		highlighted = #buttons
+	end
+end
+
+local function select(game)
+	buttons[highlighted].callback(game)
+end
+
 return {
 	start = start,
 	update = update,
 	draw = draw,
+	navigate_down = navigate_down,
+	navigate_up = navigate_up,
+	select = select,
 	menu = true
 }

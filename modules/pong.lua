@@ -3,9 +3,12 @@ local FIELD_HEIGHT = 40
 local PIXEL_SIZE = 10
 local TICKS_PER_SECOND = 20
 
+local util
+
 local ball_position = {x = 0, y = 0}
 local ball_velocity = {x = 0, y = 0}
-local paddle_position = 0
+local shadow_paddle_position = math.floor(FIELD_HEIGHT / 2)
+local paddle_position = shadow_paddle_position
 local d_paddle_position = 0
 local bot_paddle_position = 0
 local paddle_height = 5
@@ -90,21 +93,19 @@ end
 local function update_player_paddle()
 	local old_paddle_position = paddle_position
 
-	-- Update player paddle based on keyboard input
-	if love.keyboard.isDown("up") then
-		paddle_position = paddle_position - 1
-	elseif love.keyboard.isDown("down") then
-		paddle_position = paddle_position + 1
-	end
-
 	-- Update player paddle based on mouse input
 	local mouse_y = love.mouse.getY()
 
 	if mouse_y ~= last_mouse_y then
-		local screen_w, screen_h = love.graphics.getDimensions()
+		local screen_h = love.graphics.getHeight()
 		local field_h = FIELD_HEIGHT * PIXEL_SIZE
 		local field_y = (screen_h - field_h) / 2
 		paddle_position = math.floor((mouse_y - field_y) / PIXEL_SIZE)
+		shadow_paddle_position = paddle_position
+	else
+		-- Update player paddle based on keyboard input
+		shadow_paddle_position = shadow_paddle_position - util.is_move_up() + util.is_move_down()
+		paddle_position = util.round(shadow_paddle_position)
 	end
 
 	if paddle_position < 0 then
@@ -189,6 +190,7 @@ local function draw(game)
 end
 
 local function start(game)
+	util = game.util
 	reset_ball()
 	bot_score = 0
 end

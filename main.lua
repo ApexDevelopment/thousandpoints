@@ -271,6 +271,18 @@ function love.mousemoved(x, y, dx, dy)
 	end
 end
 
+function love.gamepadpressed(joystick, button)
+	if game.current_module and game.current_module.menu then
+		if button == "dpup" then
+			game.current_module.navigate_up()
+		elseif button == "dpdown" then
+			game.current_module.navigate_down()
+		elseif button == "a" or button == "start" then
+			game.current_module.select(game)
+		end
+	end
+end
+
 function love.quit()
 	if game.overlay_module and game.overlay_module.quit then
 		game.overlay_module.quit(game)

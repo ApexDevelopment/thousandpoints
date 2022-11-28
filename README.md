@@ -4,6 +4,8 @@
 ## How to Play
 I didn't have time to code a tutorial. Most games play as you would expect.
 
+Anywhere you see "arrow keys" assume you can also use WASD, the D pad, or a joystick direction.
+
 ### Space Invaders
 Arrow keys or mouse to move. Space or click to fire.
 

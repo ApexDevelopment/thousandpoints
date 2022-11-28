@@ -4,9 +4,12 @@ local PIXEL_SIZE = 10
 local TICKS_PER_SECOND = 20
 local SHRINK_BRICKS = 0.2
 
+local util
+
 local ball_position = {x = 0, y = 0}
 local ball_velocity = {x = 0, y = 0}
-local paddle_position = math.floor(FIELD_WIDTH / 2)
+local shadow_paddle_position = math.floor(FIELD_WIDTH / 2)
+local paddle_position = shadow_paddle_position
 local paddle_width = 5
 local bricks = {} -- Each brick is a table with x, y, width, height, and color.
 local last_hit_was_paddle = true
@@ -173,14 +176,7 @@ local function update_ball(game)
 end
 
 local function update_paddle()
-	if love.keyboard.isDown("left") then
-		paddle_position = paddle_position - 1
-	elseif love.keyboard.isDown("right") then
-		paddle_position = paddle_position + 1
-	end
-
 	-- Update player paddle based on mouse input (if mouse is in the game field)
-
 	local mouse_x = love.mouse.getX()
 
 	if mouse_x ~= last_mouse_x then
@@ -188,6 +184,11 @@ local function update_paddle()
 		local field_w = FIELD_WIDTH * PIXEL_SIZE
 		local field_x = (screen_w - field_w) / 2
 		paddle_position = math.floor((mouse_x - field_x) / PIXEL_SIZE)
+		shadow_paddle_position = paddle_position
+	else
+		-- Update based on other input
+		shadow_paddle_position = shadow_paddle_position - util.is_move_left() + util.is_move_right()
+		paddle_position = util.round(shadow_paddle_position)
 	end
 
 	if paddle_position < 0 then
@@ -234,10 +235,12 @@ local function generate_bricks()
 	end
 end
 
-local function start()
+local function start(game)
+	util = game.util
 	generate_bricks()
 	reset_ball()
 end
+
 local function update(dt, game)
 	time_since_last_tick = time_since_last_tick + dt
 

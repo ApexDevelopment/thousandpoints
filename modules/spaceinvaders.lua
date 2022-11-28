@@ -6,6 +6,8 @@ local NUM_ALIENS_IN_ROW = (FIELD_WIDTH - 4)
 local NUM_ALIEN_ROWS = 4
 local NUM_ALIENS = NUM_ALIENS_IN_ROW * NUM_ALIEN_ROWS
 
+local util
+
 local last_mouse_x = 0
 
 local SHIP_SPRITE = {
@@ -24,7 +26,8 @@ local ALIEN_SPRITE = {
 
 local time_since_last_tick = 0
 
-local ship_position = math.floor(FIELD_WIDTH / 2)
+local shadow_ship_position = math.floor(FIELD_WIDTH / 2)
+local ship_position = shadow_ship_position
 
 local alien_positions = {}
 local alien_bullet_positions = {}
@@ -129,14 +132,6 @@ local function check_bullet_collision(game)
 end
 
 local function update_player_position()
-	if love.keyboard.isDown("left") then
-		ship_position = ship_position - 1
-	end
-
-	if love.keyboard.isDown("right") then
-		ship_position = ship_position + 1
-	end
-
 	-- Handle mouse input
 	local mouse_x = love.mouse.getX()
 
@@ -145,6 +140,11 @@ local function update_player_position()
 		local field_w = FIELD_WIDTH * PIXEL_SIZE
 		local field_x = (screen_w - field_w) / 2
 		ship_position = math.floor((mouse_x - field_x) / PIXEL_SIZE)
+		shadow_ship_position = ship_position
+	else
+		-- Handle other input
+		shadow_ship_position = shadow_ship_position - util.is_move_left() + util.is_move_right()
+		ship_position = util.round(shadow_ship_position)
 	end
 
 	if ship_position < 0 then
@@ -157,7 +157,7 @@ local function update_player_position()
 end
 
 local function fire_bullet()
-	if #bullet_positions < 2 and bullet_cooldown == 0 and (love.keyboard.isDown("space") or love.mouse.isDown(1)) then
+	if #bullet_positions < 2 and bullet_cooldown == 0 and util.is_action() then
 		table.insert(bullet_positions, {x = ship_position, y = FIELD_HEIGHT - 2})
 		bullet_cooldown = 25
 	end
@@ -168,7 +168,8 @@ local function fire_bullet()
 	end
 end
 
-local function start()
+local function start(game)
+	util = game.util
 	reset_alien_positions()
 	clear_bullets()
 end
