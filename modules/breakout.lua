@@ -275,8 +275,6 @@ local function draw(game)
 	love.graphics.rectangle("fill", paddle_position, FIELD_HEIGHT - 2, paddle_width, 1)
 
 	love.graphics.pop()
-	local score_text = "Score: " .. game.points
-	love.graphics.print(score_text, love.graphics.getWidth() / 2 - love.graphics.getFont():getWidth(score_text) / 2, 10)
 
 	return FIELD_WIDTH, FIELD_HEIGHT
 end

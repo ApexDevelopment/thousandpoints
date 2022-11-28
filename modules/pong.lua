@@ -176,17 +176,18 @@ local function draw(game)
 	love.graphics.pop()
 
 	-- Draw scores
-	local score_text = game.points .. " - " .. bot_score
-	local score_text_width = love.graphics.getFont():getWidth(score_text)
-	local score_text_height = love.graphics.getFont():getHeight()
-	local score_label_text = "Score"
-	love.graphics.print(
-		score_label_text,
-		love.graphics.getWidth() / 2 - love.graphics.getFont():getWidth(score_label_text) / 2,
-		love.graphics.getHeight() / 2 - FIELD_HEIGHT * PIXEL_SIZE / 2 - score_text_height  * 2 - 10)
-	love.graphics.print(score_text, love.graphics.getWidth() / 2 - score_text_width / 2, love.graphics.getHeight() / 2 - FIELD_HEIGHT * PIXEL_SIZE / 2 - score_text_height - 10)
+	local score_joiner = "-"
+	local score_player_str = tostring(game.points)
+	local score_bot_str = tostring(bot_score)
+	local score_joiner_width = love.graphics.getFont():getWidth(score_joiner)
+	local score_player_str_width = love.graphics.getFont():getWidth(score_player_str)
+	local bottom = love.graphics.getHeight() / 2 + FIELD_HEIGHT * PIXEL_SIZE / 2
 
-	return FIELD_WIDTH, FIELD_HEIGHT
+	love.graphics.print(score_player_str, love.graphics.getWidth() / 2 - score_player_str_width - score_joiner_width / 2 - 5, bottom)
+	love.graphics.print(score_joiner, love.graphics.getWidth() / 2 - score_joiner_width / 2, bottom)
+	love.graphics.print(score_bot_str, love.graphics.getWidth() / 2 + score_joiner_width / 2 + 5, bottom)
+
+	return FIELD_WIDTH, FIELD_HEIGHT, true
 end
 
 local function start(game)

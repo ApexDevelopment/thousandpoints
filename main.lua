@@ -182,20 +182,27 @@ function love.draw()
 		if game.overlay_module then
 			game.shaders.blur(function() game.current_module.draw(game) end)
 		elseif not game.current_module.menu then
-			local game_w, game_h = game.current_module.draw(game)
-			local bottom_pos = game_h * game.settings.PIXEL_SIZE / 2 + love.graphics.getHeight() / 2
-			local left_pos  = love.graphics.getWidth() / 2 - game_w * game.settings.PIXEL_SIZE / 2
+			local game_w, game_h, custom_score_display = game.current_module.draw(game)
+			local top_pos = love.graphics.getHeight() / 2 - game_h * game.settings.PIXEL_SIZE / 2
+			local bottom_pos = love.graphics.getHeight() / 2 + game_h * game.settings.PIXEL_SIZE / 2
+			local left_pos = love.graphics.getWidth() / 2 - game_w * game.settings.PIXEL_SIZE / 2
+			local right_pos = love.graphics.getWidth() / 2 + game_w * game.settings.PIXEL_SIZE / 2
 			local counter = 1
 
 			love.graphics.setColor(0, 0.7, 0)
 			for i = 1, game.lives do
-				love.graphics.rectangle("fill", left_pos + 20 * (i - 1), bottom_pos + 10, 16, 16)
+				love.graphics.rectangle("fill", left_pos + 20 * (i - 1), top_pos - 26, 16, 16)
 				counter = counter + 1
 			end
 			love.graphics.setColor(1, 1, 1)
 
 			for i = counter, 3 do
-				love.graphics.rectangle("line", left_pos + 20 * (i - 1), bottom_pos + 10, 16, 16)
+				love.graphics.rectangle("line", left_pos + 20 * (i - 1), top_pos - 26, 16, 16)
+			end
+
+			if not custom_score_display then
+				local score_text = "Score: " .. game.points
+				love.graphics.print(score_text, right_pos - love.graphics.getFont():getWidth(score_text), bottom_pos)
 			end
 		else
 			game.current_module.draw(game)
