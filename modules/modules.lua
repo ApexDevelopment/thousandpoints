@@ -20,5 +20,6 @@ load_module("pong")
 load_module("spaceinvaders")
 load_module("breakout")
 load_module("tetris")
+load_module("snake")
 
 return modules
