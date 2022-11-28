@@ -2,7 +2,9 @@ local ABOUT_TEXT = {
 	"A game by Micah H.",
 	" ",
 	"Earn a thousand points in each minigame.",
-	"Most minigames control with mouse or arrow keys."
+	"Most minigames control with mouse or arrow keys.",
+	"D-pad, left stick, and A button can be used for",
+	"movement and action buttons."
 }
 local TEXT_HEIGHT = 20 * #ABOUT_TEXT
 
