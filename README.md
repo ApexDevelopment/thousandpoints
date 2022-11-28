@@ -17,3 +17,6 @@ Arrow keys or mouse to move. Hitting multiple bricks in one shot gives you combo
 
 ### Tetris
 Left and right arrow keys to move the piece. Down arrow soft drops while space hard drops, bonus points for both. Up arrow rotates. Wall kicks are implemented, but not thoroughly tested. Bonus points for clearing more than one row at once.
+
+### Snake
+Arrow keys to move. Don't run into walls or yourself. Game speeds up the more apples you eat.
